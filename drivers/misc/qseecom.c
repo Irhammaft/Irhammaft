@@ -9577,3 +9577,4 @@ MODULE_DESCRIPTION("QTI Secure Execution Environment Communicator");
 
 module_init(qseecom_init);
 module_exit(qseecom_exit);
+

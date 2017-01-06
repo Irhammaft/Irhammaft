@@ -43,6 +43,7 @@
 #include <drm/drm_bridge.h>
 #include <linux/msm_drm_notify.h>
 
+#define FPC1020_NAME "fpc1020"
 
 #define FPC1020_NAME "fpc1020"
 
@@ -100,10 +101,8 @@ struct fpc1020_data {
 	bool fb_black;
 	bool wait_finger_down;
 	struct work_struct work;
-
 	struct input_handler input_handler;
 };
-
 
 static int input_connect(struct input_handler *handler,
 		struct input_dev *dev, const struct input_device_id *id) {
