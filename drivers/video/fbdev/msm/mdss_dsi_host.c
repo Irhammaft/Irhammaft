@@ -1692,7 +1692,7 @@ int mdss_dsi_bta_status_check(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 	wmb();
 
 	ret = wait_for_completion_killable_timeout(&ctrl_pdata->bta_comp,
-						DSI_BTA_EVENT_TIMEOUT);
+						msecs_to_jiffies(DSI_BTA_EVENT_TIMEOUT));
 	if (ret <= 0) {
 		u32 reg_val, status;
 

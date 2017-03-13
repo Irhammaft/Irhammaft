@@ -3331,3 +3331,4 @@ IPA_UT_DEFINE_SUITE_START(mhi, "MHI for GSI",
 		ipa_mhi_test_in_loop_channel_reset_ipa_holb,
 		true, IPA_HW_v3_0, IPA_HW_MAX),
 } IPA_UT_DEFINE_SUITE_END(mhi);
+

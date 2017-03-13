@@ -707,3 +707,4 @@ module_exit(msm_ext_disp_exit);
 
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("MSM External Display");
+
