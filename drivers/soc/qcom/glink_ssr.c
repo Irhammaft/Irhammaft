@@ -162,3 +162,4 @@ module_rpmsg_driver(qcom_glink_ssr_driver);
 MODULE_ALIAS("rpmsg:glink_ssr");
 MODULE_DESCRIPTION("Qualcomm GLINK SSR notifier");
 MODULE_LICENSE("GPL v2");
+

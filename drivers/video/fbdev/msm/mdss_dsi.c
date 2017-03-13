@@ -4837,3 +4837,4 @@ module_exit(mdss_dsi_driver_cleanup);
 
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("DSI controller driver");
+
