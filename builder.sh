@@ -24,12 +24,12 @@ export VERSION=Seven
 DEF_REG=0
 BUILD_DTBO=1
 SIGN_BUILD=0
-#INCREMENTAL=1
+INCREMENTAL=1
 
-#if [ $INCREMENTAL = 0 ]
-#then
-#	make clean && make mrproper && rm -rf out && cd AnyKernel3/ && rm -rf * && git reset --hard && cd ..
-#fi
+if [ $INCREMENTAL = 0 ]
+then
+	cd AnyKernel3/ && rm -rf * && git reset --hard && cd ..
+fi
 
 
 if [ $DEF_REG = 1 ]
