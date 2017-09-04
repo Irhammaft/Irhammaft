@@ -306,7 +306,7 @@ static int read_xattr_block(struct inode *inode, void *txattr_addr)
 	void *xattr_addr;
 
 	/* The inode already has an extended attribute block. */
-	xpage = f2fs_get_node_page(sbi, xnid);
+	xpage = get_node_page(sbi, xnid);
 	if (IS_ERR(xpage))
 		return PTR_ERR(xpage);
 
@@ -323,8 +323,7 @@ static int lookup_all_xattrs(struct inode *inode, struct page *ipage,
 				void **base_addr, int *base_size,
 				bool *is_inline)
 {
-	void *cur_addr, *txattr_addr, *last_txattr_addr;
-	void *last_addr = NULL;
+	void *cur_addr, *txattr_addr, *last_addr = NULL;
 	nid_t xnid = F2FS_I(inode)->i_xattr_nid;
 	unsigned int inline_size = inline_xattr_size(inode);
 	int err = 0;
