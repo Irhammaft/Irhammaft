@@ -8660,11 +8660,12 @@ static void perf_event_addr_filters_apply(struct perf_event *event)
 			event->addr_filter_ranges[count].start = 0;
 			event->addr_filter_ranges[count].size = 0;
 
-			perf_addr_filter_apply(filter, mm, &event->addr_filter_ranges[count]);
+		perf_addr_filter_apply(filter, mm, &event->addr_filter_ranges[count]);
 		} else {
 			event->addr_filter_ranges[count].start = filter->offset;
 			event->addr_filter_ranges[count].size  = filter->size;
 		}
+
 
 		count++;
 	}
