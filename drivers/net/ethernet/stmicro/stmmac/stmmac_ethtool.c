@@ -714,7 +714,6 @@ static int stmmac_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
 	if (ethqos->phy_wol_wolopts != wol->wolopts) {
 		if (phy_intr_en && ethqos->phy_wol_supported) {
 			ethqos->phy_wol_wolopts = 0;
-
 			ret = phy_ethtool_set_wol(priv->phydev, wol);
 
 			if (ret) {
