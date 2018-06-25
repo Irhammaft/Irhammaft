@@ -1,4 +1,4 @@
-\menu "CPU Frequency scaling"
+menu "CPU Frequency scaling"
 
 config CPU_FREQ
 	bool "CPU Frequency scaling"
