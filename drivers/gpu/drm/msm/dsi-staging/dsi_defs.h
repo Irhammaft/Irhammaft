@@ -363,6 +363,10 @@ enum dsi_cmd_set_type {
 	DSI_CMD_SET_QSYNC_OFF,
 	DSI_CMD_SET_DISP_CRC_DCIP3,
 	DSI_CMD_SET_DISP_CRC_OFF,
+	DSI_CMD_SET_DISP_LCD_HBM_L1_ON,
+	DSI_CMD_SET_DISP_LCD_HBM_L2_ON,
+	DSI_CMD_SET_DISP_LCD_HBM_OFF,
+//>>>>>>> 41ff8d17cb17... drm: msm: dsi-staging: Add support for High Brightness Mode
 	DSI_CMD_SET_MAX
 };
 

@@ -235,10 +235,14 @@ struct dsi_panel {
 	int power_mode;
 	enum dsi_panel_physical_type panel_type;
 
+//<<<<<<< HEAD
 	u8 panel_read_data[BUF_LEN_MAX];
 	struct dsi_read_config xy_coordinate_cmds;
 	struct dsi_read_config max_luminance_cmds;
 	bool panel_max_frame_rate;
+//=====
+	int hbm_mode;
+//>>>>>>> 41ff8d17cb17... drm: msm: dsi-staging: Add support for High Brightness Mode
 };
 
 static inline bool dsi_panel_ulps_feature_enabled(struct dsi_panel *panel)
@@ -358,5 +362,7 @@ struct dsi_panel *dsi_panel_ext_bridge_get(struct device *parent,
 int dsi_panel_parse_esd_reg_read_configs(struct dsi_panel *panel);
 
 void dsi_panel_ext_bridge_put(struct dsi_panel *panel);
+
+int dsi_panel_apply_hbm_mode(struct dsi_panel *panel);
 
 #endif /* _DSI_PANEL_H_ */
