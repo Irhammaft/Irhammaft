@@ -320,8 +320,7 @@ static int read_xattr_block(struct inode *inode, void *txattr_addr)
 static int lookup_all_xattrs(struct inode *inode, struct page *ipage,
 				unsigned int index, unsigned int len,
 				const char *name, struct f2fs_xattr_entry **xe,
-				void **base_addr, int *base_size,
-				bool *is_inline)
+				void **base_addr, int *base_size)
 {
 	void *cur_addr, *txattr_addr, *last_addr = NULL;
 	nid_t xnid = F2FS_I(inode)->i_xattr_nid;
@@ -330,9 +329,8 @@ static int lookup_all_xattrs(struct inode *inode, struct page *ipage,
 
 	if (!xnid && !inline_size)
 		return -ENODATA;
-
-	*base_size = XATTR_SIZE(inode) + XATTR_PADDING_SIZE;
-	txattr_addr = xattr_alloc(F2FS_I_SB(inode), *base_size, is_inline);
+	*base_size = inline_size + size + XATTR_PADDING_SIZE;
+	txattr_addr = kzalloc(*base_size, GFP_F2FS_ZERO);
 	if (!txattr_addr)
 		return -ENOMEM;
 
@@ -529,7 +527,7 @@ int f2fs_getxattr(struct inode *inode, int index, const char *name,
 
 	down_read(&F2FS_I(inode)->i_xattr_sem);
 	error = lookup_all_xattrs(inode, ipage, index, len, name,
-				&entry, &base_addr, &base_size, &is_inline);
+				&entry, &base_addr, &base_size);
 	up_read(&F2FS_I(inode)->i_xattr_sem);
 	if (error)
 		return error;
