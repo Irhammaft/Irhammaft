@@ -971,6 +971,7 @@ int f2fs_fill_dentries(struct dir_context *ctx, struct f2fs_dentry_ptr *d,
 			set_sbi_flag(sbi, SBI_NEED_FSCK);
 			err = -EFSCORRUPTED;
 			goto out;
+
 		}
 
 		if (IS_ENCRYPTED(d->inode)) {
