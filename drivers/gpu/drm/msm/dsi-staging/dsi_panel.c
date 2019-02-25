@@ -28,7 +28,7 @@
 #include "xiaomi_frame_stat.h"
 
 #ifdef CONFIG_KLAPSE
-#include <linux/klapse.h>
+#include "../sde/klapse.h"
 #endif
 
 /**
