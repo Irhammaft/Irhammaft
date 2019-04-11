@@ -322,19 +322,20 @@ static int lookup_all_xattrs(struct inode *inode, struct page *ipage,
 				const char *name, struct f2fs_xattr_entry **xe,
 				void **base_addr, int *base_size)
 {
-	void *cur_addr, *txattr_addr, *last_addr = NULL;
+	void *cur_addr, *txattr_addr, *last_txattr_addr;
+	void *last_addr = NULL;
 	nid_t xnid = F2FS_I(inode)->i_xattr_nid;
 	unsigned int inline_size = inline_xattr_size(inode);
 	int err = 0;
 
 	if (!xnid && !inline_size)
 		return -ENODATA;
-	*base_size = inline_size + size + XATTR_PADDING_SIZE;
+	*base_size = XATTR_SIZE(xnid, inode) + XATTR_PADDING_SIZE;
 	txattr_addr = kzalloc(*base_size, GFP_F2FS_ZERO);
 	if (!txattr_addr)
 		return -ENOMEM;
 
-	last_txattr_addr = (void *)txattr_addr + XATTR_SIZE(inode);
+	last_txattr_addr = (void *)txattr_addr + XATTR_SIZE(xnid, inode);
 
 	/* read from inline xattr */
 	if (inline_size) {
@@ -367,7 +368,7 @@ static int lookup_all_xattrs(struct inode *inode, struct page *ipage,
 		f2fs_err(F2FS_I_SB(inode), "inode (%lu) has corrupted xattr",
 								inode->i_ino);
 		set_sbi_flag(F2FS_I_SB(inode), SBI_NEED_FSCK);
-		err = -EFSCORRUPTED;
+		err = -EFAULT;
 		goto out;
 	}
 check:
@@ -626,6 +627,7 @@ static int __f2fs_setxattr(struct inode *inode, int index,
 {
 	struct f2fs_xattr_entry *here, *last;
 	void *base_addr, *last_base_addr;
+	nid_t xnid = F2FS_I(inode)->i_xattr_nid;
 	int found, newsize;
 	size_t len;
 	__u32 new_hsize;
@@ -649,7 +651,7 @@ static int __f2fs_setxattr(struct inode *inode, int index,
 	if (error)
 		return error;
 
-	last_base_addr = (void *)base_addr + XATTR_SIZE(inode);
+	last_base_addr = (void *)base_addr + XATTR_SIZE(xnid, inode);
 
 	/* find entry with wanted name. */
 	here = __find_xattr(base_addr, last_base_addr, index, len, name);
@@ -657,7 +659,7 @@ static int __f2fs_setxattr(struct inode *inode, int index,
 		f2fs_err(F2FS_I_SB(inode), "inode (%lu) has corrupted xattr",
 								inode->i_ino);
 		set_sbi_flag(F2FS_I_SB(inode), SBI_NEED_FSCK);
-		error = -EFSCORRUPTED;
+		error = -EFAULT;
 		goto exit;
 	}
 
