@@ -4801,7 +4801,7 @@ void restore_user_nice_safe(struct task_struct *p)
 		return;
 
 	p->static_prio = NICE_TO_PRIO(nice);
-	set_load_weight_op(p, true);
+//	set_load_weight_op(p, true);
 	p->prio = effective_prio(p);
 
 	/* update nice_effect_ts to ULLONG_MAX */
@@ -4843,7 +4843,7 @@ void set_user_nice_no_cache(struct task_struct *p, long nice)
 		put_prev_task(rq, p);
 
 	p->static_prio = NICE_TO_PRIO(nice);
-	set_load_weight_op(p, true);
+//	set_load_weight_op(p, true);
 	old_prio = p->prio;
 	p->prio = effective_prio(p);
 	delta = p->prio - old_prio;

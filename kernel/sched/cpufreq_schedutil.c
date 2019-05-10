@@ -183,10 +183,10 @@ unsigned int cc_cal_next_freq_with_extra_util(
 		unsigned long max = arch_scale_cpu_capacity(NULL, policy->cpu);
 		unsigned int freq = arch_scale_freq_invariant() ?
 				policy->cpuinfo.max_freq : policy->cur;
-		struct sugov_cpu *sg_cpu = &per_cpu(sugov_cpu, policy->cpu);
+//		struct sugov_cpu *sg_cpu = &per_cpu(sugov_cpu, policy->cpu);
 
 		if (max) {
-			orig_util = freq_to_util(sg_cpu->sg_policy, next_freq);
+//			orig_util = freq_to_util(sg_cpu->sg_policy, next_freq);
 			extra_util = orig_util + extra_util * max / 100;
 			next_freq = freq * extra_util / max;
 		}
@@ -862,10 +862,10 @@ static int sugov_start(struct cpufreq_policy *policy)
 					     policy_is_shared(policy) ?
 							sugov_update_shared :
 							sugov_update_single);
-#ifdef CONFIG_HOUSTON
-		ht_register_cpu_util(cpu, cpumask_first(policy->related_cpus),
-				&sg_cpu->util, &sg_policy->hispeed_util);
-#endif
+//#ifdef CONFIG_HOUSTON
+//		ht_register_cpu_util(cpu, cpumask_first(policy->related_cpus);
+		//		&sg_cpu->util, &sg_policy->cpuinfo.max_freq);
+//#endif
 	}
 
 #ifdef CONFIG_CONTROL_CENTER

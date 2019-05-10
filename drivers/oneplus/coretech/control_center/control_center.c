@@ -790,8 +790,8 @@ static void cc_adjust_ddr_lock_freq(struct cc_command *cc)
 	/* check if need update */
 	cur = query_ddrfreq();
 
-	if (cur != val)
-		aop_lock_ddr_freq(val);
+//	if (cur != val)
+//		aop_lock_ddr_freq(val);
 }
 
 static void cc_adjust_sched(struct cc_command *cc)
