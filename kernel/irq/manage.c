@@ -425,9 +425,6 @@ int irq_setup_affinity(struct irq_desc *desc)
 	if (cpumask_empty(&mask))
 		cpumask_copy(&mask, cpu_online_mask);
 
-	if (irqd_has_set(&desc->irq_data, IRQF_PERF_CRITICAL))
-		cpumask_copy(&mask, cpu_perf_mask);
-
 	if (node != NUMA_NO_NODE) {
 		const struct cpumask *nodemask = cpumask_of_node(node);
 
@@ -1251,7 +1248,7 @@ static void affine_one_perf_irq(struct irq_desc *desc, unsigned int perf_flag)
 
 void setup_perf_irq_locked(struct irq_desc *desc, unsigned int perf_flag)
 {
-	add_desc_to_perf_list(desc);
+	add_desc_to_perf_list(desc, perf_flag);
 	raw_spin_lock(&perf_irqs_lock);
 	affine_one_perf_irq(desc, perf_flag);
 	raw_spin_unlock(&perf_irqs_lock);
@@ -2412,3 +2409,4 @@ int irq_set_irqchip_state(unsigned int irq, enum irqchip_irq_state which,
 	return err;
 }
 EXPORT_SYMBOL_GPL(irq_set_irqchip_state);
+
