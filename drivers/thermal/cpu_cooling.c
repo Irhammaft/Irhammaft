@@ -302,8 +302,9 @@ static int cpufreq_thermal_notifier(struct notifier_block *nb,
 	unsigned long clipped_freq = ULONG_MAX, floor_freq = 0;
 	struct cpufreq_cooling_device *cpufreq_cdev;
 
-	if (event != CPUFREQ_THERMAL)
-		return NOTIFY_DONE;
+	//if (event != CPUFREQ_THERMAL)
+	if (event != CPUFREQ_THERMAL || event != CPUFREQ_INCOMPATIBLE)	
+	return NOTIFY_DONE;
 
 	mutex_lock(&cooling_list_lock);
 	list_for_each_entry(cpufreq_cdev, &cpufreq_cdev_list, node) {
@@ -343,13 +344,14 @@ void cpu_limits_set_level(unsigned int cpu, unsigned int max_freq)
 {
 	struct cpufreq_cooling_device *cpufreq_cdev;
 	struct thermal_cooling_device *cdev;
-	unsigned int cdev_cpu;
+	//unsigned int cdev_cpu;
 	unsigned int level;
 
 	list_for_each_entry(cpufreq_cdev, &cpufreq_cdev_list, node) {
-		sscanf(cpufreq_cdev->cdev->type, "thermal-cpufreq-%d", &cdev_cpu);
-		if (cdev_cpu == cpu) {
-			for (level = 0; level < cpufreq_cdev->max_level; level++) {
+	//	sscanf(cpufreq_cdev->cdev->type, "thermal-cpufreq-%d", &cdev_cpu);
+	//	if (cdev_cpu == cpu) {
+	if (cpufreq_cdev->id == cpu) {	
+		for (level = 0; level < cpufreq_cdev->max_level; level++) {
 				int target_freq = cpufreq_cdev->freq_table[level].frequency;
 				if (max_freq >= target_freq) {
 					cdev = cpufreq_cdev->cdev;
