@@ -2836,8 +2836,6 @@ static inline bool is_min_capacity_cpu(int cpu)
 	return true;
 #endif
 }
-
-
 static inline void set_preferred_cluster(struct related_thread_group *grp) { }
 
 static inline bool task_in_related_thread_group(struct task_struct *p)
