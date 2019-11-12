@@ -316,6 +316,8 @@ struct msm_otg {
 	struct delayed_work perf_vote_work;
 	struct delayed_work sdp_check;
 	struct work_struct notify_charger_work;
+	struct work_struct extcon_register_work;
+	struct notifier_block psy_nb;
 	bool enable_sdp_check_timer;
 };
 
