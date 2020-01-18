@@ -30,6 +30,6 @@ config CONTROL_CENTER
 	default n
 	bool "control center"
 config AIGOV
-	default n
+	default y
 	bool "A governor which using ai predicted info as input"
 

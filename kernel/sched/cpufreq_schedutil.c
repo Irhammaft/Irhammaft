@@ -17,6 +17,7 @@
 #include <linux/slab.h>
 #include <trace/events/power.h>
 #include <linux/sched/sysctl.h>
+#include <linux/aigov/aigov_helper.h>
 #include "sched.h"
 
 #ifdef CONFIG_CONTROL_CENTER
@@ -377,6 +378,95 @@ static bool sugov_cpu_is_busy(struct sugov_cpu *sg_cpu)
 static inline bool sugov_cpu_is_busy(struct sugov_cpu *sg_cpu) { return false; }
 #endif /* CONFIG_NO_HZ_COMMON */
 
+#define NL_RATIO 75
+#define DEFAULT_HISPEED_LOAD 90
+static void sugov_walt_adjust(struct sugov_cpu *sg_cpu, unsigned long *util,
+			      unsigned long *max)
+{
+	struct sugov_policy *sg_policy = sg_cpu->sg_policy;
+	bool is_migration = sg_cpu->flags & SCHED_CPUFREQ_INTERCLUSTER_MIG;
+	unsigned long nl = sg_cpu->walt_load.nl;
+	unsigned long cpu_util = sg_cpu->util;
+	bool is_hiload;
+	unsigned long pl = sg_cpu->walt_load.pl;
+
+	if (unlikely(!sysctl_sched_use_walt_cpu_util))
+		return;
+
+	is_hiload = (cpu_util >= mult_frac(sg_policy->avg_cap,
+					   sg_policy->tunables->hispeed_load,
+					   100));
+
+	if (is_hiload && !is_migration)
+		*util = max(*util, sg_policy->hispeed_util);
+
+	if (is_hiload && nl >= mult_frac(cpu_util, NL_RATIO, 100))
+		*util = *max;
+
+	if (sg_policy->tunables->pl) {
+		if (conservative_pl())
+			pl = mult_frac(pl, TARGET_LOAD, 100);
+		*util = max(*util, pl);
+	}
+}
+
+#ifdef CONFIG_NO_HZ_COMMON
+static bool sugov_cpu_is_busy(struct sugov_cpu *sg_cpu)
+{
+	unsigned long idle_calls = tick_nohz_get_idle_calls();
+	bool ret = idle_calls == sg_cpu->saved_idle_calls;
+
+	sg_cpu->saved_idle_calls = idle_calls;
+	return ret;
+}
+#else
+static inline bool sugov_cpu_is_busy(struct sugov_cpu *sg_cpu) { return false; }
+#endif /* CONFIG_NO_HZ_COMMON */
+
+#ifdef CONFIG_AIGOV
+static unsigned long freq_to_util(struct sugov_cpu *sg_cpu,
+				  unsigned int freq)
+{
+	return mult_frac(sg_cpu->max, freq,
+			 	sg_cpu->sg_policy->policy->cpuinfo.max_freq);
+}
+
+static void aigov_evaluate(struct sugov_cpu* sg_cpu, unsigned long *util, unsigned long *max)
+{
+	struct sugov_policy *sg_policy;
+
+	if (unlikely(!sg_cpu))
+		return;
+
+	sg_policy = sg_cpu->sg_policy;
+
+	if (aigov_enabled()) {
+		unsigned long aigov_pred_freq = aigov_get_cpufreq(sg_cpu->cpu);
+		unsigned long aigov_pred_util;
+		unsigned long aigov_extra_util = aigov_get_boost_hint(sg_cpu->cpu);
+		int w = aigov_get_weight();
+
+		aigov_pred_freq = clamp(aigov_pred_freq, 0UL, (unsigned long) sg_policy->policy->cpuinfo.max_freq);
+		aigov_pred_util = freq_to_util(sg_cpu, aigov_pred_freq);
+		aigov_extra_util = aigov_get_boost_hint(sg_cpu->cpu) * (*max) / 10;
+		aigov_extra_util = min(aigov_extra_util, *max);
+
+		/* if ai has predicted util */
+		if (aigov_pred_util)
+			aigov_pred_util = (((*util * (100 - w))/ 100 + (aigov_pred_util * w)/ 100) * 4) / 5;
+		else
+			aigov_pred_util = *util;
+
+		/* add extra util (from fps boost) */
+		aigov_pred_util += aigov_extra_util;
+
+		aigov_dump(sg_cpu->cpu, *util, aigov_pred_util, aigov_extra_util);
+
+		if (aigov_use_util())
+			*util = aigov_pred_util;
+	}
+}
+#endif
 static void sugov_update_single(struct update_util_data *hook, u64 time,
 				unsigned int flags)
 {
@@ -435,11 +525,18 @@ static unsigned int sugov_next_freq_shared(struct sugov_cpu *sg_cpu, u64 time)
 	struct cpufreq_policy *policy = sg_policy->policy;
 	unsigned long util = 0, max = 1;
 	unsigned int j;
+#ifdef CONFIG_AIGOV
+	struct sugov_cpu* last_sg_cpu = NULL;
+#endif
 
 	for_each_cpu(j, policy->cpus) {
 		struct sugov_cpu *j_sg_cpu = &per_cpu(sugov_cpu, j);
 		unsigned long j_util, j_max;
 		s64 delta_ns;
+		
+#ifdef CONFIG_AIGOV
+		last_sg_cpu = j_sg_cpu;
+#endif
 
 		/*
 		 * If the CPU utilization was last updated before the previous
@@ -469,6 +566,10 @@ static unsigned int sugov_next_freq_shared(struct sugov_cpu *sg_cpu, u64 time)
 
 		sugov_iowait_boost(j_sg_cpu, &util, &max);
 	}
+
+#ifdef CONFIG_AIGOV
+	aigov_evaluate(last_sg_cpu, &util, &max);
+#endif
 
 	return get_next_freq(sg_policy, util, max);
 }
