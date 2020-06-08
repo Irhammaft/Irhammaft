@@ -27,6 +27,10 @@
 #include "dsi_panel_mi.h"
 #include "xiaomi_frame_stat.h"
 
+#ifdef CONFIG_KLAPSE
+#include <linux/klapse.h>
+#endif
+
 /**
  * topology is currently defined by a set of following 3 values:
  * 1. num of layer mixers
@@ -652,6 +656,9 @@ static int dsi_panel_update_backlight(struct dsi_panel *panel,
 
 	dsi = &panel->mipi_device;
 
+									  
+													
+
 	rc = mipi_dsi_dcs_set_display_brightness(dsi, bl_lvl);
 	if (rc < 0)
 		pr_err("failed to update dcs backlight:%d\n", bl_lvl);
@@ -735,6 +742,10 @@ int dsi_panel_set_backlight(struct dsi_panel *panel, u32 bl_lvl)
 		pr_err("Backlight type(%d) not supported\n", bl->type);
 		rc = -ENOTSUPP;
 	}
+	
+#ifdef CONFIG_KLAPSE
+	set_rgb_slider(bl_lvl);
+#endif
 
 	return rc;
 }
@@ -1841,22 +1852,15 @@ const char *cmd_set_prop_map[DSI_CMD_SET_MAX] = {
 	"qcom,mdss-dsi-dispparam-max-luminance-valid-command",
 	"qcom,mdss-dsi-qsync-on-commands",
 	"qcom,mdss-dsi-qsync-off-commands",
-//<<<<<<< HEAD
 	"qcom,mdss-dsi-dispparam-crc-dcip3-on-command",
 	"qcom,mdss-dsi-dispparam-crc-off-command",
-
-//=====
 	"qcom,mdss-dsi-dispparam-lcd-hbm-l1-on-command",
 	"qcom,mdss-dsi-dispparam-lcd-hbm-l2-on-command",
 	"qcom,mdss-dsi-dispparam-lcd-hbm-off-command",
-//<<<<<<< HEAD
-//>>>>> 41ff8d17cb17... drm: msm: dsi-staging: Add support for High Brightness Mode
-///=======
 	"qcom,mdss-dsi-dispparam-cabcuion-command",
 	"qcom,mdss-dsi-dispparam-cabcstillon-command",
 	"qcom,mdss-dsi-dispparam-cabcmovieon-command",
 	"qcom,mdss-dsi-dispparam-cabcoff-command",
-//>>>>>>> 0a0917c73d0e... dsm/msm: dsi-staging: Add support for CABC mode
 };
 
 const char *cmd_set_state_map[DSI_CMD_SET_MAX] = {
@@ -1936,21 +1940,15 @@ const char *cmd_set_state_map[DSI_CMD_SET_MAX] = {
 	"qcom,mdss-dsi-dispparam-max-luminance-valid-command-state",
 	"qcom,mdss-dsi-qsync-on-commands-state",
 	"qcom,mdss-dsi-qsync-off-commands-state",
-//<<<<<<< HEAD
 	"qcom,mdss-dsi-dispparam-crc-dcip3-on-command-state",
 	"qcom,mdss-dsi-dispparam-crc-off-command-state",
-//=======
 	"qcom,mdss-dsi-dispparam-lcd-hbm-l1-on-command-state",
 	"qcom,mdss-dsi-dispparam-lcd-hbm-l2-on-command-state",
 	"qcom,mdss-dsi-dispparam-lcd-hbm-off-command-state",
-//<<<<<<< HEAD
-//>>>>>>> 41ff8d17cb17... drm: msm: dsi-staging: Add support for High Brightness Mode
-//=======
 	"qcom,mdss-dsi-dispparam-cabcuion-command-state",
 	"qcom,mdss-dsi-dispparam-cabcstillon-command-state",
 	"qcom,mdss-dsi-dispparam-cabcmovieon-command-state",
 	"qcom,mdss-dsi-dispparam-cabcoff-command-state",
-//>>>>>>> 0a0917c73d0e... dsm/msm: dsi-staging: Add support for CABC mode
 };
 
 static int dsi_panel_get_cmd_pkt_count(const char *data, u32 length, u32 *cnt)
@@ -2499,6 +2497,9 @@ static int dsi_panel_parse_bl_config(struct dsi_panel *panel)
 	} else {
 		panel->bl_config.brightness_default_level = val;
 	}
+
+																 
+								   
 
 	if (panel->bl_config.type == DSI_BACKLIGHT_PWM) {
 		rc = dsi_panel_parse_bl_pwm_config(panel);
@@ -4918,12 +4919,9 @@ int dsi_panel_enable(struct dsi_panel *panel)
 
 	mutex_unlock(&panel->panel_lock);
 
-//<<<<<<< HEAD
 	lcd_esd_enable(1);
-//=======
 	if (panel->hbm_mode)
 		dsi_panel_apply_hbm_mode(panel);
-//>>>>>>> 41ff8d17cb17... drm: msm: dsi-staging: Add support for High Brightness Mode
 
 	if (panel->cabc_mode)
 		dsi_panel_apply_cabc_mode(panel);
@@ -5066,7 +5064,6 @@ error:
 	return rc;
 }
 
-//<<<<<<< HEAD
 int dsi_panel_set_feature(struct dsi_panel *panel, enum dsi_cmd_set_type type)
 {
 		int rc = 0;
@@ -5090,7 +5087,7 @@ int dsi_panel_set_feature(struct dsi_panel *panel, enum dsi_cmd_set_type type)
 		}
 		mutex_unlock(&panel->panel_lock);
 		return rc;
-//=======
+}
 int dsi_panel_apply_hbm_mode(struct dsi_panel *panel)
 {
 	static const enum dsi_cmd_set_type type_map[] = {
@@ -5113,7 +5110,6 @@ int dsi_panel_apply_hbm_mode(struct dsi_panel *panel)
 	mutex_unlock(&panel->panel_lock);
 
 	return rc;
-//>>>>>>> 41ff8d17cb17... drm: msm: dsi-staging: Add support for High Brightness Mode
 }
 
 int dsi_panel_apply_cabc_mode(struct dsi_panel *panel)
@@ -5140,3 +5136,4 @@ int dsi_panel_apply_cabc_mode(struct dsi_panel *panel)
 
 	return rc;
 }
+
