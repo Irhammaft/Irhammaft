@@ -691,10 +691,16 @@ err_find_dev:
 static int spidev_release(struct inode *inode, struct file *filp)
 {
 	struct spidev_data	*spidev;
+	int			dofree;
 
 	mutex_lock(&device_list_lock);
 	spidev = filp->private_data;
 	filp->private_data = NULL;
+
+	spin_lock_irq(&spidev->spi_lock);
+	/* ... after we unbound from the underlying device? */
+	dofree = (spidev->spi == NULL);
+	spin_unlock_irq(&spidev->spi_lock);
 
 	/* last close? */
 	spidev->users--;
@@ -702,6 +708,7 @@ static int spidev_release(struct inode *inode, struct file *filp)
 		int		dofree;
 /* removed buffer kmalloc size start by haoyanling */
 /*
+
 		kfree(spidev->tx_buffer);
 		spidev->tx_buffer = NULL;
 
@@ -710,19 +717,14 @@ static int spidev_release(struct inode *inode, struct file *filp)
 */
 /* removed buffer kmalloc size end by haoyanling */
 
-		spin_lock_irq(&spidev->spi_lock);
-		if (spidev->spi)
-			spidev->speed_hz = spidev->spi->max_speed_hz;
-
-		/* ... after we unbound from the underlying device? */
-		dofree = (spidev->spi == NULL);
-		spin_unlock_irq(&spidev->spi_lock);
-
 		if (dofree)
 			kfree(spidev);
+		else
+			spidev->speed_hz = spidev->spi->max_speed_hz;
 	}
 #ifdef CONFIG_SPI_SLAVE
-	spi_slave_abort(spidev->spi);
+	if (!dofree)
+		spi_slave_abort(spidev->spi);
 #endif
 	mutex_unlock(&device_list_lock);
 
