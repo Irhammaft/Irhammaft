@@ -16,6 +16,7 @@ static inline struct icmp6hdr *icmp6_hdr(const struct sk_buff *skb)
 #if IS_ENABLED(CONFIG_IPV6)
 
 typedef void ip6_icmp_send_t(struct sk_buff *skb, u8 type, u8 code, __u32 info,
+
 			     const struct in6_addr *force_saddr,
 			     const struct inet6_skb_parm *parm);
 void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
@@ -26,6 +27,15 @@ static inline void __icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 in
 				 const struct inet6_skb_parm *parm)
 {
 	icmp6_send(skb, type, code, info, NULL, parm);
+=======
+			     const struct in6_addr *force_saddr);
+#if IS_BUILTIN(CONFIG_IPV6)
+void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
+		const struct in6_addr *force_saddr);
+static inline void icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info)
+{
+	icmp6_send(skb, type, code, info, NULL);
+>>>>>>> 8b779e11bc55 (ipv6: icmp6: avoid indirect call for icmpv6_send())
 }
 static inline int inet6_register_icmp_sender(ip6_icmp_send_t *fn)
 {
