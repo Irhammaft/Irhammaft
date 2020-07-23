@@ -596,6 +596,7 @@ static void sde_encoder_phys_vid_vblank_irq(void *arg, int irq_idx)
 
 	/* signal only for master, where there is a pending kickoff */
 
+
 	if (sde_encoder_phys_vid_is_master(phys_enc)) {
 		if (atomic_add_unless(&phys_enc->pending_retire_fence_cnt,
 
@@ -606,6 +607,7 @@ static void sde_encoder_phys_vid_vblank_irq(void *arg, int irq_idx)
 			frame_stat_collector(0, VBLANK_TS);
 		}
  }
+
 
 not_flushed:
 	if (hw_ctl && hw_ctl->ops.get_reset)
