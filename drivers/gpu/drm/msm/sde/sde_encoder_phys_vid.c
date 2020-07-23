@@ -595,12 +595,14 @@ static void sde_encoder_phys_vid_vblank_irq(void *arg, int irq_idx)
 
 	/* signal only for master, where there is a pending kickoff */
 
+
 	if (sde_encoder_phys_vid_is_master(phys_enc)) {
 		if (atomic_add_unless(&phys_enc->pending_retire_fence_cnt,
 					-1, 0))
 			event |= SDE_ENCODER_FRAME_EVENT_SIGNAL_RETIRE_FENCE |
 				SDE_ENCODER_FRAME_EVENT_SIGNAL_RELEASE_FENCE;
 	}
+
 
 not_flushed:
 	if (hw_ctl && hw_ctl->ops.get_reset)
