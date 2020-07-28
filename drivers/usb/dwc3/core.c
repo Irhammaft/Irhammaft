@@ -1478,6 +1478,7 @@ static int dwc3_probe(struct platform_device *pdev)
 	dwc3_debugfs_init(dwc);
 	return 0;
 
+
 err3:
 	dwc3_free_scratch_buffers(dwc);
 err2:
