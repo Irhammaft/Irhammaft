@@ -2565,6 +2565,7 @@ int ufs_qcom_testbus_config(struct ufs_qcom_host *host)
 	if (reg) {
 		ufshcd_rmwl(host->hba, TEST_BUS_SEL,
 		    (u32)host->testbus.select_major << testbus_sel_offset,
+
 		    REG_UFS_CFG1);
 		ufshcd_rmwl(host->hba, mask,
 		    (u32)host->testbus.select_minor << offset,
@@ -2582,6 +2583,7 @@ int ufs_qcom_testbus_config(struct ufs_qcom_host *host)
 	mb();
 out:
 	return ret;
+
 }
 
 static void ufs_qcom_testbus_read(struct ufs_hba *hba)
