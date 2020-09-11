@@ -445,3 +445,4 @@ size_t zstd_get_frame_header(zstd_frame_header *params, const void *src,
 	size_t src_size);
 
 #endif  /* LINUX_ZSTD_H */
+
