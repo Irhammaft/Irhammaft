@@ -435,10 +435,11 @@ static int qcom_smp2p_inbound_entry(struct qcom_smp2p *smp2p,
 static int smp2p_update_bits(void *data, u32 mask, u32 value)
 {
 	struct smp2p_entry *entry = data;
+	unsigned long flags;
 	u32 orig;
 	u32 val;
 
-	spin_lock(&entry->lock);
+	spin_lock_irqsave(&entry->lock, flags);
 	val = orig = readl(entry->value);
 	val &= ~mask;
 	val |= value;
@@ -446,6 +447,7 @@ static int smp2p_update_bits(void *data, u32 mask, u32 value)
 	spin_unlock(&entry->lock);
 	SMP2P_INFO("%d: %s: orig:0x%0x new:0x%0x\n",
 		   entry->smp2p->remote_pid, entry->name, orig, val);
+
 
 	if (val != orig)
 		qcom_smp2p_kick(entry->smp2p);
