@@ -357,6 +357,7 @@ static void mmc_request_fn(struct request_queue *q)
 		wake_up_process(mq->thread);
 }
 
+
 /**
  * mmc_init_request() - initialize the MMC-specific per-request data
  * @q: the request queue
