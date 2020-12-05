@@ -85,9 +85,6 @@ struct dsi_dfps_capabilities {
 	u32 *dfps_list;
 	u32 dfps_list_len;
 	bool dfps_support;
-	/* smart fps control */
-	bool smart_fps_support;
-	u32 smart_fps_value;
 };
 
 struct dsi_dyn_clk_caps {
@@ -235,18 +232,13 @@ struct dsi_panel {
 	int power_mode;
 	enum dsi_panel_physical_type panel_type;
 
-//<<<<<<< HEAD
 	u8 panel_read_data[BUF_LEN_MAX];
 	struct dsi_read_config xy_coordinate_cmds;
 	struct dsi_read_config max_luminance_cmds;
-	bool panel_max_frame_rate;
-//=====
+
+//	bool panel_max_frame_rate;
 	int hbm_mode;
-//5<<<<<< HEAD
-//>>>>>>> 41ff8d17cb17... drm: msm: dsi-staging: Add support for High Brightness Mode
-//=======
 	int cabc_mode;
-//>>>>>>> 0a0917c73d0e... dsm/msm: dsi-staging: Add support for CABC mode
 };
 
 static inline bool dsi_panel_ulps_feature_enabled(struct dsi_panel *panel)
