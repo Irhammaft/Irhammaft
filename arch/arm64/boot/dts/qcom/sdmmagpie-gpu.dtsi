@@ -271,7 +271,7 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 
-				qcom,speed-bin = <150>;
+				qcom,speed-bin = <172>;
 
 				qcom,initial-pwrlevel = <7>;
 				qcom,ca-target-pwrlevel = <5>;
@@ -361,7 +361,7 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 
-				qcom,speed-bin = <120>;
+				qcom,speed-bin = <146>;
 
 				qcom,initial-pwrlevel = <6>;
 				qcom,ca-target-pwrlevel = <4>;
@@ -442,7 +442,7 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 
-				qcom,speed-bin = <100>;
+				qcom,speed-bin = <128>;
 
 				qcom,initial-pwrlevel = <5>;
 				qcom,ca-target-pwrlevel = <3>;
@@ -515,7 +515,7 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 
-				qcom,speed-bin = <140>;
+				qcom,speed-bin = <167>;
 
 				qcom,initial-pwrlevel = <7>;
 				qcom,ca-target-pwrlevel = <4>;
