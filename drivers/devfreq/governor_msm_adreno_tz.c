@@ -450,6 +450,7 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
 						&val, sizeof(val), priv);
 		}
 #else
+
 		unsigned int refresh_rate = dsi_panel_get_refresh_rate();
 
 		scm_data[0] = level;
