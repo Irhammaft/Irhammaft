@@ -1220,7 +1220,7 @@ static int sde_connector_atomic_set_property(struct drm_connector *connector,
 
 	if (idx == CONNECTOR_PROP_HDR_METADATA) {
 		rc = _sde_connector_set_ext_hdr_info(c_conn,
-			c_state, (void __user *)(uintptr_t)val);
+			c_state, (void *)(uintptr_t)val);
 		if (rc)
 			SDE_ERROR_CONN(c_conn, "cannot set hdr info %d\n", rc);
 	}
@@ -2361,6 +2361,7 @@ struct drm_connector *sde_connector_init(struct drm_device *dev,
 			} else
 				pr_info("%s: Request esd irq succeed!\n", __func__);
 		}
+
 	}
 
 	rc = sde_connector_get_info(&c_conn->base, &display_info);
