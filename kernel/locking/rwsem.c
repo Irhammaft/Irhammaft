@@ -422,7 +422,7 @@ void __init_rwsem(struct rw_semaphore *sem, const char *name,
 	 * Make sure we are not reinitializing a held semaphore:
 	 */
 	debug_check_no_locks_freed((void *)sem, sizeof(*sem));
-	lockdep_init_map_wait(&sem->dep_map, name, key, 0, LD_WAIT_SLEEP);
+	lockdep_init_map(&sem->dep_map, name, key, 0);
 #endif
 	atomic_long_set(&sem->count, RWSEM_UNLOCKED_VALUE);
 	raw_spin_lock_init(&sem->wait_lock);
@@ -796,42 +796,35 @@ rwsem_spin_on_owner(struct rw_semaphore *sem, unsigned long nonspinnable)
 	if (state != OWNER_WRITER)
 		return state;
 
+	rcu_read_lock();
 	for (;;) {
-		bool same_owner;
-
 		if (atomic_long_read(&sem->count) & RWSEM_FLAG_HANDOFF) {
 			state = OWNER_NONSPINNABLE;
 			break;
 		}
 
-		rcu_read_lock();
 		new = rwsem_owner_flags(sem, &new_flags);
-
-		/*
-		 * Ensure sem->owner still matches owner. If that fails,
-		 * owner might point to free()d memory, if it still matches,
-		 * the rcu_read_lock() ensures the memory stays valid.
-		 */
-		same_owner = new == owner && new_flags == flags;
-		if (same_owner && !owner_on_cpu(owner))
-			state = OWNER_NONSPINNABLE;
-		rcu_read_unlock();
-
-		if (!same_owner) {
+		if ((new != owner) || (new_flags != flags)) {
 			state = rwsem_owner_state(new, new_flags, nonspinnable);
 			break;
 		}
 
-		if (state == OWNER_NONSPINNABLE)
-			break;
+		/*
+		 * Ensure we emit the owner->on_cpu, dereference _after_
+		 * checking sem->owner still matches owner, if that fails,
+		 * owner might point to free()d memory, if it still matches,
+		 * the rcu_read_lock() ensures the memory stays valid.
+		 */
+		barrier();
 
-		if (need_resched()) {
+		if (need_resched() || !owner_on_cpu(owner)) {
 			state = OWNER_NONSPINNABLE;
 			break;
 		}
 
 		cpu_relax();
 	}
+	rcu_read_unlock();
 
 	return state;
 }
@@ -1059,7 +1052,7 @@ static inline bool rwsem_reader_phase_trylock(struct rw_semaphore *sem,
 static struct rw_semaphore __sched *
 rwsem_down_read_slowpath(struct rw_semaphore *sem, int state)
 {
-	long adjustment = -RWSEM_READER_BIAS;
+	long count, adjustment = -RWSEM_READER_BIAS;
 	struct rwsem_waiter waiter;
 	DEFINE_WAKE_Q(wake_q);
 	bool is_first_waiter = false;
@@ -1696,3 +1689,4 @@ void up_read_non_owner(struct rw_semaphore *sem)
 EXPORT_SYMBOL(up_read_non_owner);
 
 #endif
+
