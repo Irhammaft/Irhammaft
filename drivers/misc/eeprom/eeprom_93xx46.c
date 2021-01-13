@@ -537,8 +537,6 @@ module_spi_driver(eeprom_93xx46_driver);
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Driver for 93xx46 EEPROMs");
 MODULE_AUTHOR("Anatolij Gustschin <agust@denx.de>");
-<<<<<<< HEAD
 MODULE_ALIAS("spi:93xx46");
-=======
->>>>>>> 8a610927ce26... misc: eeprom_93xx46: Fix module alias to enable module autoprobe
+MODULE_ALIAS("spi:93xx46");
 MODULE_ALIAS("spi:eeprom-93xx46");
