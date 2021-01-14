@@ -225,8 +225,11 @@ static void sugov_calc_avg_cap(struct sugov_policy *sg_policy, u64 curr_ws,
 			next_freq = freq * extra_util / max;
 		}
 	}
+
 	next_freq = cpufreq_driver_resolve_freq(policy, next_freq);
 	return next_freq;
+	sg_policy->curr_cycles = 0;
+	sg_policy->last_ws = curr_ws;
 }
 EXPORT_SYMBOL(cc_cal_next_freq_with_extra_util);
 #endif
@@ -444,7 +447,7 @@ static inline bool sugov_cpu_is_busy(struct sugov_cpu *sg_cpu) { return false; }
 #endif /* CONFIG_NO_HZ_COMMON */
 
 #ifdef CONFIG_AIGOV
-static unsigned long freq_to_util(struct sugov_cpu *sg_cpu,
+static unsigned long freq_to_util_aigov(struct sugov_cpu *sg_cpu,
 				  unsigned int freq)
 {
 	return mult_frac(sg_cpu->max, freq,
@@ -467,7 +470,7 @@ static void aigov_evaluate(struct sugov_cpu* sg_cpu, unsigned long *util, unsign
 		int w = aigov_get_weight();
 
 		aigov_pred_freq = clamp(aigov_pred_freq, 0UL, (unsigned long) sg_policy->policy->cpuinfo.max_freq);
-		aigov_pred_util = freq_to_util(sg_cpu, aigov_pred_freq);
+		aigov_pred_util = freq_to_util_aigov(sg_cpu, aigov_pred_freq);
 		aigov_extra_util = aigov_get_boost_hint(sg_cpu->cpu) * (*max) / 10;
 		aigov_extra_util = min(aigov_extra_util, *max);
 
