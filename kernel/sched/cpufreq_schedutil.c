@@ -164,6 +164,39 @@ unsigned int cc_cal_next_freq_with_extra_util(
 	struct cpufreq_policy *policy,
 	unsigned int next_freq
 )
+
+static inline bool conservative_pl(void)
+{
+#ifdef CONFIG_SCHED_WALT
+	return sysctl_sched_conservative_pl;
+#else
+	return false;
+#endif
+}
+
+#define KHZ 1000
+static void sugov_track_cycles(struct sugov_policy *sg_policy,
+				unsigned int prev_freq,
+				u64 upto)
+{
+	u64 delta_ns, cycles;
+	u64 next_ws = sg_policy->last_ws + sched_ravg_window;
+
+	if (unlikely(!sysctl_sched_use_walt_cpu_util))
+		return;
+
+	upto = min(upto, next_ws);
+	/* Track cycles in current window */
+	delta_ns = upto - sg_policy->last_cyc_update_time;
+	delta_ns *= prev_freq;
+	do_div(delta_ns, (NSEC_PER_SEC / KHZ));
+	cycles = delta_ns;
+	sg_policy->curr_cycles += cycles;
+	sg_policy->last_cyc_update_time = upto;
+}
+
+static void sugov_calc_avg_cap(struct sugov_policy *sg_policy, u64 curr_ws,
+				unsigned int prev_freq)
 {
 	/* scale util by turbo boost */
 	int type = CCDM_TB_CLUS_0_FREQ_BOOST;
@@ -364,19 +397,6 @@ static void sugov_iowait_boost(struct sugov_cpu *sg_cpu, unsigned long *util,
 		*max = boost_max;
 	}
 }
-
-#ifdef CONFIG_NO_HZ_COMMON
-static bool sugov_cpu_is_busy(struct sugov_cpu *sg_cpu)
-{
-	unsigned long idle_calls = tick_nohz_get_idle_calls_cpu(sg_cpu->cpu);
-	bool ret = idle_calls == sg_cpu->saved_idle_calls;
-
-	sg_cpu->saved_idle_calls = idle_calls;
-	return ret;
-}
-#else
-static inline bool sugov_cpu_is_busy(struct sugov_cpu *sg_cpu) { return false; }
-#endif /* CONFIG_NO_HZ_COMMON */
 
 #define NL_RATIO 75
 #define DEFAULT_HISPEED_LOAD 90
