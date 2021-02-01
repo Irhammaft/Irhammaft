@@ -850,6 +850,8 @@ static int alarm_timer_nsleep(const clockid_t which_clock, int flags,
 	restart->nanosleep.clockid = type;
 	restart->nanosleep.expires = exp;
 	
+	set_restart_fn(restart, alarm_timer_nsleep_restart);
+	return ret;
 }
 
 const struct k_clock alarm_clock = {
