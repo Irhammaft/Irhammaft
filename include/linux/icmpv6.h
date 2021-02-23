@@ -28,11 +28,13 @@ static inline void __icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 in
 	icmp6_send(skb, type, code, info, NULL, parm);
 			     const struct in6_addr *force_saddr);
 void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
-		const struct in6_addr *force_saddr);
+		const struct in6_addr *force_saddr,
+		const struct inet6_skb_parm *parm);
 #if IS_BUILTIN(CONFIG_IPV6)
-static inline void icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info)
+static inline void __icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
+				 const struct inet6_skb_parm *parm)
 {
-	icmp6_send(skb, type, code, info, NULL);
+	icmp6_send(skb, type, code, info, NULL, parm);
 }
 static inline int inet6_register_icmp_sender(ip6_icmp_send_t *fn)
 {

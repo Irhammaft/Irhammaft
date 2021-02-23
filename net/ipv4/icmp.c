@@ -761,6 +761,7 @@ void icmp_ndo_send(struct sk_buff *skb_in, int type, int code, __be32 info)
 	struct sk_buff *cloned_skb = NULL;
 	struct ip_options opts = { 0 };
  	enum ip_conntrack_info ctinfo;
+	enum ip_conntrack_info ctinfo;
 	struct nf_conn *ct;
 	__be32 orig_ip;
 
@@ -769,6 +770,7 @@ void icmp_ndo_send(struct sk_buff *skb_in, int type, int code, __be32 info)
 
 		__icmp_send(skb_in, type, code, info, &opts);
 	icmp_send(skb_in, type, code, info);
+		__icmp_send(skb_in, type, code, info, &opts);
 		return;
 	}
 
