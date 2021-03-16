@@ -2183,6 +2183,10 @@ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
 			     BPF_ALU_SANITIZE_SRC : BPF_ALU_SANITIZE_DST;
 	}
 
+	err = retrieve_ptr_limit(ptr_reg, &alu_limit, opcode, off_is_neg);
+	if (err < 0)
+		return err;
+
 	err = update_alu_sanitation_state(aux, alu_state, alu_limit);
 	if (err < 0)
 		return err;
@@ -2365,6 +2369,14 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
 
 	switch (opcode) {
 	case BPF_ADD:
+<<<<<<< HEAD
+=======
+		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
+		if (ret < 0) {
+			verbose("R%d tried to add from different maps, paths, or prohibited types\n", dst);
+			return ret;
+		}
+>>>>>>> c49e70a5e7f2... bpf: Prohibit alu ops for pointer types not defining ptr_limit
 		/* We can take a fixed offset as long as it doesn't overflow
 		 * the s32 'off' field
 		 */
@@ -2415,6 +2427,14 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
 		}
 		break;
 	case BPF_SUB:
+<<<<<<< HEAD
+=======
+		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
+		if (ret < 0) {
+			verbose("R%d tried to sub from different maps, paths, or prohibited types\n", dst);
+			return ret;
+		}
+>>>>>>> c49e70a5e7f2... bpf: Prohibit alu ops for pointer types not defining ptr_limit
 		if (dst_reg == off_reg) {
 			/* scalar -= pointer.  Creates an unknown scalar */
 			verbose("R%d tried to subtract pointer from scalar\n",
