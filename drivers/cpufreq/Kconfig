@@ -374,7 +374,6 @@ config IDLE_MIN_FREQ_PERF
 	  The cluster will revert to this frequency when the display is
 	  turned off.
 
-
 endif
 
 comment "CPU frequency scaling drivers"
