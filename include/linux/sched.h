@@ -1499,7 +1499,7 @@ struct task_struct {
 #endif
 #endif
 
-///>>>>>>> e4d44fbf1840... kernel: import houston and control_center from OnePlus 8
+	struct fuse_package *fpack;
 	/* CPU-specific state of this task: */
 	struct thread_struct		thread;
 
@@ -1509,6 +1509,12 @@ struct task_struct {
 	 *
 	 * Do not put anything below here!
 	 */
+};
+
+struct fuse_package {
+	bool fuse_open_req;
+	struct file *filp;
+	char *iname;
 };
 
 static inline struct pid *task_pid(struct task_struct *task)

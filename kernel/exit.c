@@ -197,6 +197,13 @@ void release_task(struct task_struct *p)
 #ifdef CONFIG_HOUSTON
 	ht_rtg_list_del(p);
 #endif
+	if (p->fpack) {
+		if (p->fpack->iname)
+			__putname(p->fpack->iname);
+		kfree(p->fpack);
+		p->fpack = NULL;
+	}
+
 repeat:
 	/* don't need to get the RCU readlock here - the process is dead and
 	 * can't be modifying its own credentials. But shut RCU-lockdep up */
