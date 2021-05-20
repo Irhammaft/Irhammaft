@@ -23,8 +23,11 @@ ccflags-y += $(DISABLE_LTO)
 
 # Force -O2 to avoid libgcc dependencies
 CFLAGS_REMOVE_vgettimeofday.o = -pg -Os
-CFLAGS_vgettimeofday.o = -O2 -fPIC
-ifneq ($(cc-name),clang)
+CFLAGS_vgettimeofday.o = -fPIC
+ifeq ($(cc-name),clang)
+CFLAGS_vgettimeofday.o = -O3
+else
+CFLAGS_vgettimeofday.o = -O2
 CFLAGS_vgettimeofday.o += -mcmodel=tiny
 endif
 
@@ -36,10 +39,6 @@ KASAN_SANITIZE := n
 UBSAN_SANITIZE := n
 KCOV_INSTRUMENT := n
 
-# Workaround for bare-metal (ELF) toolchains that neglect to pass -shared
-# down to collect2, resulting in silent corruption of the vDSO image.
-ccflags-y += -Wl,-shared
-
 obj-y += vdso.o
 extra-y += vdso.lds
 CPPFLAGS_vdso.lds += -P -C -U$(ARCH)
@@ -49,7 +48,7 @@ $(obj)/vdso.o : $(obj)/vdso.so
 
 # Link rule for the .so file, .lds has to be first
 $(obj)/vdso.so.dbg: $(src)/vdso.lds $(obj-vdso)
-	$(call if_changed,vdsold)
+	$(call if_changed,ld)
 
 # Strip rule for the .so file
 $(obj)/%.so: OBJCOPYFLAGS := -S
