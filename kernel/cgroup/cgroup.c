@@ -6238,6 +6238,9 @@ static ssize_t show_delegatable_files(struct cftype *files, char *buf,
 		if (!(cft->flags & CFTYPE_NS_DELEGATABLE))
 			continue;
 
+		if ((cft->flags & CFTYPE_PRESSURE) && !cgroup_psi_enabled())
+			continue;
+
 		if (prefix)
 			ret += snprintf(buf + ret, size - ret, "%s.", prefix);
 
