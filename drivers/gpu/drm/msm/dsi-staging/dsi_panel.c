@@ -1849,7 +1849,14 @@ const char *cmd_set_prop_map[DSI_CMD_SET_MAX] = {
 	"qcom,mdss-dsi-dispparam-lcd-hbm-l1-on-command",
 	"qcom,mdss-dsi-dispparam-lcd-hbm-l2-on-command",
 	"qcom,mdss-dsi-dispparam-lcd-hbm-off-command",
+//<<<<<<< HEAD
 //>>>>> 41ff8d17cb17... drm: msm: dsi-staging: Add support for High Brightness Mode
+///=======
+	"qcom,mdss-dsi-dispparam-cabcuion-command",
+	"qcom,mdss-dsi-dispparam-cabcstillon-command",
+	"qcom,mdss-dsi-dispparam-cabcmovieon-command",
+	"qcom,mdss-dsi-dispparam-cabcoff-command",
+//>>>>>>> 0a0917c73d0e... dsm/msm: dsi-staging: Add support for CABC mode
 };
 
 const char *cmd_set_state_map[DSI_CMD_SET_MAX] = {
@@ -1936,7 +1943,14 @@ const char *cmd_set_state_map[DSI_CMD_SET_MAX] = {
 	"qcom,mdss-dsi-dispparam-lcd-hbm-l1-on-command-state",
 	"qcom,mdss-dsi-dispparam-lcd-hbm-l2-on-command-state",
 	"qcom,mdss-dsi-dispparam-lcd-hbm-off-command-state",
+//<<<<<<< HEAD
 //>>>>>>> 41ff8d17cb17... drm: msm: dsi-staging: Add support for High Brightness Mode
+//=======
+	"qcom,mdss-dsi-dispparam-cabcuion-command-state",
+	"qcom,mdss-dsi-dispparam-cabcstillon-command-state",
+	"qcom,mdss-dsi-dispparam-cabcmovieon-command-state",
+	"qcom,mdss-dsi-dispparam-cabcoff-command-state",
+//>>>>>>> 0a0917c73d0e... dsm/msm: dsi-staging: Add support for CABC mode
 };
 
 static int dsi_panel_get_cmd_pkt_count(const char *data, u32 length, u32 *cnt)
@@ -4911,6 +4925,9 @@ int dsi_panel_enable(struct dsi_panel *panel)
 		dsi_panel_apply_hbm_mode(panel);
 //>>>>>>> 41ff8d17cb17... drm: msm: dsi-staging: Add support for High Brightness Mode
 
+	if (panel->cabc_mode)
+		dsi_panel_apply_cabc_mode(panel);
+
 	return rc;
 }
 
@@ -5097,4 +5114,29 @@ int dsi_panel_apply_hbm_mode(struct dsi_panel *panel)
 
 	return rc;
 //>>>>>>> 41ff8d17cb17... drm: msm: dsi-staging: Add support for High Brightness Mode
+}
+
+int dsi_panel_apply_cabc_mode(struct dsi_panel *panel)
+{
+	static const enum dsi_cmd_set_type type_map[] = {
+		DSI_CMD_SET_DISP_CABC_OFF,
+		DSI_CMD_SET_DISP_CABC_UI_ON,
+		DSI_CMD_SET_DISP_CABC_STILL_ON,
+		DSI_CMD_SET_DISP_CABC_MOVIE_ON
+	};
+
+	enum dsi_cmd_set_type type;
+	int rc;
+
+	if (panel->cabc_mode >= 0 &&
+		panel->cabc_mode < ARRAY_SIZE(type_map))
+		type = type_map[panel->cabc_mode];
+	else
+		type = type_map[0];
+
+	mutex_lock(&panel->panel_lock);
+	rc = dsi_panel_tx_cmd_set(panel, type);
+	mutex_unlock(&panel->panel_lock);
+
+	return rc;
 }

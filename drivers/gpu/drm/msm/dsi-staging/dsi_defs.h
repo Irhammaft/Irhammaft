@@ -366,7 +366,11 @@ enum dsi_cmd_set_type {
 	DSI_CMD_SET_DISP_LCD_HBM_L1_ON,
 	DSI_CMD_SET_DISP_LCD_HBM_L2_ON,
 	DSI_CMD_SET_DISP_LCD_HBM_OFF,
-//>>>>>>> 41ff8d17cb17... drm: msm: dsi-staging: Add support for High Brightness Mode
+	DSI_CMD_SET_DISP_CABC_UI_ON,
+	DSI_CMD_SET_DISP_CABC_STILL_ON,
+	DSI_CMD_SET_DISP_CABC_MOVIE_ON,
+	DSI_CMD_SET_DISP_CABC_OFF,
+//>>>>>>> 0a0917c73d0e... dsm/msm: dsi-staging: Add support for CABC mode
 	DSI_CMD_SET_MAX
 };
 
