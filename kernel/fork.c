@@ -109,6 +109,14 @@
 #define CREATE_TRACE_POINTS
 #include <trace/events/task.h>
 
+#ifdef CONFIG_CONTROL_CENTER
+#include <oneplus/control_center/control_center_helper.h>
+#endif
+
+#ifdef CONFIG_HOUSTON
+#include <oneplus/houston/houston_helper.h>
+#endif
+
 /*
  * Minimum number of threads to boot the kernel
  */
@@ -582,6 +590,12 @@ static struct task_struct *dup_task_struct(struct task_struct *orig, int node)
 #ifdef CONFIG_BLK_DEV_IO_TRACE
 	tsk->btrace_seq = 0;
 #endif
+
+#ifdef CONFIG_CONTROL_CENTER
+	tsk->nice_effect_ts = 0;
+	tsk->cached_prio = tsk->static_prio;
+#endif
+
 	tsk->splice_pipe = NULL;
 	tsk->task_frag.page = NULL;
 	tsk->wake_q.next = NULL;
@@ -2130,6 +2144,19 @@ static __latent_entropy struct task_struct *copy_process(
 	uprobe_copy_process(p, clone_flags);
 
 	copy_oom_score_adj(clone_flags, p);
+
+#if defined(CONFIG_CONTROL_CENTER) || defined(CONFIG_HOUSTON)
+	if (likely(!IS_ERR(p))) {
+#ifdef CONFIG_HOUSTON
+		ht_perf_event_init(p);
+		ht_rtg_init(p);
+#endif
+#ifdef CONFIG_CONTROL_CENTER
+		cc_tsk_init((void *) p);
+#endif
+	}
+#endif
+//>>>>>>> e4d44fbf1840... kernel: import houston and control_center from OnePlus 8
 
 	return p;
 

@@ -19,6 +19,14 @@
 #include <linux/sched/sysctl.h>
 #include "sched.h"
 
+#ifdef CONFIG_CONTROL_CENTER
+#include <oneplus/control_center/control_center_helper.h>
+#endif
+
+#ifdef CONFIG_HOUSTON
+#include <oneplus/houston/houston_helper.h>
+#endif
+
 #define SUGOV_KTHREAD_PRIORITY	50
 
 struct sugov_tunables {
@@ -150,6 +158,45 @@ static inline bool use_pelt(void)
 #endif
 }
 
+#ifdef CONFIG_CONTROL_CENTER
+unsigned int cc_cal_next_freq_with_extra_util(
+	struct cpufreq_policy *policy,
+	unsigned int next_freq
+)
+{
+	/* scale util by turbo boost */
+	int type = CCDM_TB_CLUS_0_FREQ_BOOST;
+	unsigned long extra_util = 0;
+
+	switch (policy->cpu) {
+	case 4: case 5: case 6:
+		type = CCDM_TB_CLUS_1_FREQ_BOOST;
+		break;
+	case 7:
+		type = CCDM_TB_CLUS_2_FREQ_BOOST;
+		break;
+	}
+
+	extra_util = ccdm_get_hint(type);
+	if (extra_util) {
+		unsigned long orig_util = 0;
+		unsigned long max = arch_scale_cpu_capacity(NULL, policy->cpu);
+		unsigned int freq = arch_scale_freq_invariant() ?
+				policy->cpuinfo.max_freq : policy->cur;
+		struct sugov_cpu *sg_cpu = &per_cpu(sugov_cpu, policy->cpu);
+
+		if (max) {
+			orig_util = freq_to_util(sg_cpu->sg_policy, next_freq);
+			extra_util = orig_util + extra_util * max / 100;
+			next_freq = freq * extra_util / max;
+		}
+	}
+	next_freq = cpufreq_driver_resolve_freq(policy, next_freq);
+	return next_freq;
+}
+EXPORT_SYMBOL(cc_cal_next_freq_with_extra_util);
+#endif
+
 static void sugov_update_commit(struct sugov_policy *sg_policy, u64 time,
 				unsigned int next_freq)
 {
@@ -211,7 +258,17 @@ static unsigned int get_next_freq(struct sugov_policy *sg_policy,
 
 	freq = (freq + (freq >> 2)) * util / max;
 
+
+//	if (freq == sg_policy->cached_raw_freq && !sg_policy->need_freq_update)
+
+#ifdef CONFIG_CONTROL_CENTER
+	/* keep requested freq */
+	sg_policy->policy->req_freq = freq;
+#endif
+
 	if (freq == sg_policy->cached_raw_freq && !sg_policy->need_freq_update)
+//	if (freq == sg_policy->cached_raw_freq && sg_policy->next_freq != UINT_MAX)
+//>>>>>>> e4d44fbf1840... kernel: import houston and control_center from OnePlus 8
 		return sg_policy->next_freq;
 
 	sg_policy->need_freq_update = false;
@@ -361,6 +418,10 @@ static void sugov_update_single(struct update_util_data *hook, u64 time,
 		    sg_policy->next_freq != UINT_MAX) {
 			next_f = sg_policy->next_freq;
 
+#ifdef CONFIG_CONTROL_CENTER
+	next_f = cc_cal_next_freq_with_extra_util(policy, next_f);
+#endif
+
 			/* Reset cached freq as next_freq has changed */
 			sg_policy->cached_raw_freq = 0;
 		}
@@ -420,7 +481,13 @@ static void sugov_update_shared(struct update_util_data *hook, u64 time,
 	unsigned long util, max;
 	unsigned int next_f;
 
+//	if (flags & SCHED_CPUFREQ_PL)=
+#ifdef CONFIG_CONTROL_CENTER
+	struct cpufreq_policy *policy = sg_policy->policy;
+#endif
 	if (flags & SCHED_CPUFREQ_PL)
+//	if (!sg_policy->tunables->pl && flags & SCHED_CPUFREQ_PL)
+//>>>>>>> e4d44fbf1840... kernel: import houston and control_center from OnePlus 8
 		return;
 
 	sugov_get_util(&util, &max, sg_cpu->cpu, time);
@@ -446,7 +513,10 @@ static void sugov_update_shared(struct update_util_data *hook, u64 time,
 			next_f = sugov_next_freq_shared(sg_cpu, time);
 		}
 
-		sugov_update_commit(sg_policy, time, next_f);
+#ifdef CONFIG_CONTROL_CENTER
+		next_f = cc_cal_next_freq_with_extra_util(policy, next_f);
+#endif
+	sugov_update_commit(sg_policy, time, next_f);
 	}
 
 	raw_spin_unlock(&sg_policy->update_lock);
@@ -792,7 +862,16 @@ static int sugov_start(struct cpufreq_policy *policy)
 					     policy_is_shared(policy) ?
 							sugov_update_shared :
 							sugov_update_single);
+#ifdef CONFIG_HOUSTON
+		ht_register_cpu_util(cpu, cpumask_first(policy->related_cpus),
+				&sg_cpu->util, &sg_policy->hispeed_util);
+#endif
 	}
+
+#ifdef CONFIG_CONTROL_CENTER
+	policy->cc_enable = true;
+#endif
+
 	return 0;
 }
 
@@ -817,6 +896,9 @@ static void sugov_limits(struct cpufreq_policy *policy)
 	struct sugov_policy *sg_policy = policy->governor_data;
 	unsigned long flags;
 
+#ifdef CONFIG_CONTROL_CENTER
+	policy->cc_enable = false;
+#endif
 	if (!policy->fast_switch_enabled) {
 		mutex_lock(&sg_policy->work_lock);
 		cpufreq_policy_apply_limits(policy);
