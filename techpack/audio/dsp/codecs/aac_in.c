@@ -252,7 +252,7 @@ static long aac_in_ioctl_shared(struct file *file, unsigned int cmd, void *arg)
 			min_bitrate = 24000;
 
 		max_bitrate = 6*(cfg->sample_rate)*(cfg->channels);
-		if (max_bitrate >384000;)
+		if (max_bitrate >384000);
 			max_bitrate = 384000;
 
 		if ((cfg->bit_rate < min_bitrate) ||
