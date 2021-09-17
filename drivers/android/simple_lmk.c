@@ -280,7 +280,7 @@ static int simple_lmk_reclaim_thread(void *data)
 	set_freezable();
 
 	while (1) {
-		wait_event_freezable(oom_waitq, atomic_read(&needs_reclaim));
+		wait_event(oom_waitq, atomic_read(&needs_reclaim));
 		scan_and_kill();
 		atomic_set_release(&needs_reclaim, 0);
 	}
