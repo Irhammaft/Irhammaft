@@ -12,6 +12,12 @@ AK3_DIR="/root/kernel/AnyKernel3"
 DEFCONFIG="surya_defconfig"
 
 export PATH="$TC_DIR/bin:$PATH"
+export CCACHE_DIR="/root/.cache/ccache"
+export CA="ccache gcc"
+export CXX="ccache g++"
+export PATH="/usr/lib/ccache:$PATH"
+export KBUILD_COMPILER_STRING="/root/kernel/clang/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')"
+
 
 if [[ $1 = "-r" || $1 = "--regen" ]]; then
 	make O=out ARCH=arm64 $DEFCONFIG savedefconfig
