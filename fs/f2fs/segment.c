@@ -557,6 +557,9 @@ void f2fs_balance_fs_bg(struct f2fs_sb_info *sbi, bool from_bg)
 	if (is_inflight_io(sbi, REQ_TIME) ||
 		(!f2fs_time_over(sbi, REQ_TIME) && rwsem_is_locked(&sbi->cp_rwsem)))
 
+	/* checkpoint is the only way to shrink partial cached entries */
+	if (f2fs_available_free_memory(sbi, NAT_ENTRIES) &&
+		f2fs_available_free_memory(sbi, INO_ENTRIES))
 		return;
 
 	/* checkpoint is the only way to shrink partial cached entries */
