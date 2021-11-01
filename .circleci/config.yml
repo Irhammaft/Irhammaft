@@ -10,7 +10,6 @@ jobs:
            git clone --depth=1 https://github.com/efaiza5/xxxvenoom
            git config --global user.name "venoom"
            git config --global user.email "venoomtulip@gmail.com"
-           curl -fsSL "https://repo.archlinuxcn.org/x86_64/glibc-linux4-2.33-4-x86_64.pkg.tar.zst" | bsdtar -C / -xvf -
            bash build.sh
 workflows:
   version: 2.1
