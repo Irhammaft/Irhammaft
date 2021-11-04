@@ -1485,7 +1485,8 @@ static int qrtr_bcast_enqueue(struct qrtr_node *node, struct sk_buff *skb,
 	}
 	up_read(&qrtr_node_lock);
 
-	qrtr_local_enqueue(NULL, skb);
+	qrtr_local_enqueue(node, skb, type, from, to, flags);
+
 	return 0;
 }
 
@@ -1964,3 +1965,4 @@ module_exit(qrtr_proto_fini);
 
 MODULE_DESCRIPTION("Qualcomm IPC-router driver");
 MODULE_LICENSE("GPL v2");
+
