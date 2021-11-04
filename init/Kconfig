@@ -21,10 +21,6 @@ config TOOLS_SUPPORT_RELR
 	# Prevent this from being enabled by default in allyesconfig or
 	# allmodconfig builds.
 	depends on !COMPILE_TEST
-config CC_HAS_WARN_MAYBE_UNINITIALIZED
-	def_bool $(cc-option,-Wmaybe-uninitialized)
-	help
-	  GCC >= 4.7 supports this option.
 
 config CC_DISABLE_WARN_MAYBE_UNINITIALIZED
 	bool
