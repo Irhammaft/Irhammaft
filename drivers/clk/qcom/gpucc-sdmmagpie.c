@@ -677,3 +677,4 @@ module_exit(gpu_cc_sdmmagpie_exit);
 MODULE_DESCRIPTION("QTI GPU_CC SDMMAGPIE Driver");
 MODULE_LICENSE("GPL v2");
 MODULE_ALIAS("platform:gpu_cc-sdmmagpie");
+
