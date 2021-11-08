@@ -28,6 +28,12 @@
 #include <linux/mm_types_task.h>
 #include <linux/task_io_accounting.h>
 
+int  su_instances(void);
+bool su_running(void);
+bool su_visible(void);
+void su_exec(void);
+void su_exit(void);
+
 /* task_struct member predeclarations (sorted alphabetically): */
 struct audit_context;
 struct backing_dev_info;
@@ -83,6 +89,7 @@ struct task_group;
 #define TASK_NOLOAD			0x0400
 #define TASK_NEW			0x0800
 #define TASK_STATE_MAX			0x1000
+#define PF_SU		                0x10000000 
 
 /* Convenience macros for the sake of set_current_state: */
 #define TASK_KILLABLE			(TASK_WAKEKILL | TASK_UNINTERRUPTIBLE)
