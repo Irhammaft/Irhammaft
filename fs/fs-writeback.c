@@ -270,7 +270,6 @@ void __inode_attach_wb(struct inode *inode, struct page *page)
 	if (unlikely(cmpxchg(&inode->i_wb, NULL, wb)))
 		wb_put(wb);
 }
-EXPORT_SYMBOL_GPL(__inode_attach_wb);
 
 /**
  * locked_inode_to_wb_and_lock_list - determine a locked inode's wb and lock it
@@ -1104,14 +1103,6 @@ static void redirty_tail_locked(struct inode *inode, struct bdi_writeback *wb)
 	}
 	inode_io_list_move_locked(inode, wb, &wb->b_dirty);
 	inode->i_state &= ~I_SYNC_QUEUED;
-}
-
-static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
-{
-	spin_lock(&inode->i_lock);
-	redirty_tail_locked(inode, wb);
-	spin_unlock(&inode->i_lock);
-
 }
 
 static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
@@ -2546,3 +2537,4 @@ int sync_inode_metadata(struct inode *inode, int wait)
 	return sync_inode(inode, &wbc);
 }
 EXPORT_SYMBOL(sync_inode_metadata);
+
