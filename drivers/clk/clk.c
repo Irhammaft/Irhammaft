@@ -62,6 +62,7 @@ static DEFINE_MUTEX(vdd_class_list_lock);
  * returning from clk_core_set_rate_nolock().
  */
 static LIST_HEAD(clk_rate_change_list);
+
 /***    private data structures    ***/
 
 struct clk_core {
@@ -2753,7 +2754,6 @@ static const struct file_operations clk_state_fops = {
 	.release	= single_release,
 };
 
-
 static void clk_summary_show_one(struct seq_file *s, struct clk_core *c,
 				 int level)
 {
@@ -3982,34 +3982,6 @@ static const struct clk_ops clk_nodrv_ops = {
 	.set_parent	= clk_nodrv_set_parent,
 };
 
-static void clk_core_evict_parent_cache_subtree(struct clk_core *root,
-						struct clk_core *target)
-{
-	int i;
-	struct clk_core *child;
-
-	for (i = 0; i < root->num_parents; i++)
-		if (root->parents[i] == target)
-			root->parents[i] = NULL;
-
-	hlist_for_each_entry(child, &root->children, child_node)
-		clk_core_evict_parent_cache_subtree(child, target);
-}
-
-/* Remove this clk from all parent caches */
-static void clk_core_evict_parent_cache(struct clk_core *core)
-{
-	struct hlist_head **lists;
-	struct clk_core *root;
-
-	lockdep_assert_held(&prepare_lock);
-
-	for (lists = all_lists; *lists; lists++)
-		hlist_for_each_entry(root, *lists, child_node)
-			clk_core_evict_parent_cache_subtree(root, core);
-
-}
-
 /**
  * clk_unregister - unregister a currently registered clock
  * @clk: clock to unregister
@@ -4047,8 +4019,6 @@ void clk_unregister(struct clk *clk)
 					  child_node)
 			clk_core_set_parent(child, NULL);
 	}
-
-	clk_core_evict_parent_cache(clk->core);
 
 	hlist_del_init(&clk->core->child_node);
 
@@ -5038,3 +5008,4 @@ void __init of_clk_init(const struct of_device_id *matches)
 #endif /* CONFIG_COMMON_CLK */
 
 #endif
+
