@@ -1,5 +1,5 @@
 /* Copyright (c) 2016-2019, The Linux Foundation. All rights reserved.
- *
+ * Copyright (C) 2020 XiaoMi, Inc.
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
  * only version 2 as published by the Free Software Foundation.
@@ -19,7 +19,6 @@
 #include <linux/ion_kernel.h>
 #include <linux/dma-buf.h>
 
-//xieqi add 2020-04-27
 #include <linux/syscalls.h>
 
 #include "cam_req_mgr_util.h"
@@ -773,9 +772,7 @@ map_kernel_fail:
 map_hw_fail:
         cam_mem_put_slot(idx);
 slot_fail:
-//xieqi add start 2020-04-27 for smmu_map_buffer Fail to avoid ion leak
 	sys_close(fd);
-//xieqi add end
 	dma_buf_put(dmabuf);
 	return rc;
 }
