@@ -17,6 +17,7 @@
 #include "sde_formats.h"
 #include "dsi_display.h"
 #include "sde_trace.h"
+#include "xiaomi_frame_stat.h"
 
 #define SDE_DEBUG_VIDENC(e, fmt, ...) SDE_DEBUG("enc%d intf%d " fmt, \
 		(e) && (e)->base.parent ? \
@@ -594,12 +595,19 @@ static void sde_encoder_phys_vid_vblank_irq(void *arg, int irq_idx)
 	pend_ret_fence_cnt = atomic_read(&phys_enc->pending_retire_fence_cnt);
 
 	/* signal only for master, where there is a pending kickoff */
-	if (sde_encoder_phys_vid_is_master(phys_enc) &&
-		atomic_add_unless(&phys_enc->pending_retire_fence_cnt, -1, 0)) {
-		event = SDE_ENCODER_FRAME_EVENT_DONE |
-			SDE_ENCODER_FRAME_EVENT_SIGNAL_RETIRE_FENCE |
-			SDE_ENCODER_FRAME_EVENT_SIGNAL_RELEASE_FENCE;
-	}
+
+
+	if (sde_encoder_phys_vid_is_master(phys_enc)) {
+		if (atomic_add_unless(&phys_enc->pending_retire_fence_cnt,
+
+					-1, 0))
+			event |= SDE_ENCODER_FRAME_EVENT_DONE |
+				SDE_ENCODER_FRAME_EVENT_SIGNAL_RETIRE_FENCE |
+				SDE_ENCODER_FRAME_EVENT_SIGNAL_RELEASE_FENCE;
+			frame_stat_collector(0, VBLANK_TS);
+		}
+ }
+
 
 not_flushed:
 	if (hw_ctl && hw_ctl->ops.get_reset)
@@ -1454,4 +1462,3 @@ fail:
 
 	return ERR_PTR(ret);
 }
-

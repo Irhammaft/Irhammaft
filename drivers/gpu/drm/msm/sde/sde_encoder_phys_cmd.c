@@ -1459,6 +1459,15 @@ static int _sde_encoder_phys_cmd_wait_for_wr_ptr(
 	return ret;
 }
 
+static void sde_encoder_phys_cmd_ctl_start_work(struct work_struct *work)
+{
+	struct sde_encoder_phys_cmd *cmd_enc = container_of(work,
+							    typeof(*cmd_enc),
+							    ctl_wait_work);
+
+	_sde_encoder_phys_cmd_wait_for_ctl_start(&cmd_enc->base);
+}
+
 static int sde_encoder_phys_cmd_wait_for_tx_complete(
 		struct sde_encoder_phys *phys_enc)
 {
@@ -1499,14 +1508,11 @@ static int sde_encoder_phys_cmd_wait_for_commit_done(
 		if (rc == -ETIMEDOUT)
 			goto wait_for_idle;
 
-		if (cmd_enc->autorefresh.cfg.enable)
-			rc = _sde_encoder_phys_cmd_wait_for_autorefresh_done(
-						phys_enc);
 
-		ctl = phys_enc->hw_ctl;
-		if (ctl && ctl->ops.get_scheduler_status)
-			scheduler_status = ctl->ops.get_scheduler_status(ctl);
-	}
+	if (sde_encoder_phys_cmd_is_master(phys_enc) &&
+			cmd_enc->autorefresh.cfg.enable)
+		rc = _sde_encoder_phys_cmd_wait_for_autorefresh_done(phys_enc);
+
 
 	/* wait for posted start or serialize trigger */
 	pending_cnt = atomic_read(&phys_enc->pending_kickoff_cnt);
@@ -1612,6 +1618,9 @@ static void sde_encoder_phys_cmd_prepare_commit(
 
 	if (!sde_encoder_phys_cmd_is_master(phys_enc))
 		return;
+
+	/* Wait for ctl_start interrupt for the previous commit if needed */
+	flush_work(&cmd_enc->ctl_wait_work);
 
 	SDE_EVT32(DRMID(phys_enc->parent), phys_enc->intf_idx - INTF_0,
 			cmd_enc->autorefresh.cfg.enable);
@@ -1825,6 +1834,7 @@ struct sde_encoder_phys *sde_encoder_phys_cmd_init(
 	init_waitqueue_head(&cmd_enc->pending_vblank_wq);
 	atomic_set(&cmd_enc->autorefresh.kickoff_cnt, 0);
 	init_waitqueue_head(&cmd_enc->autorefresh.kickoff_wq);
+	INIT_WORK(&cmd_enc->ctl_wait_work, sde_encoder_phys_cmd_ctl_start_work);
 
 	SDE_DEBUG_CMDENC(cmd_enc, "created\n");
 
@@ -1835,4 +1845,3 @@ fail_mdp_init:
 fail:
 	return ERR_PTR(ret);
 }
-
