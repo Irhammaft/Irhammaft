@@ -5137,3 +5137,4 @@ int dsi_panel_apply_cabc_mode(struct dsi_panel *panel)
 	return rc;
 }
 
+
