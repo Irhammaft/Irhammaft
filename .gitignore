@@ -41,6 +41,7 @@
 *.xz
 Module.symvers
 modules.builtin
+a
 
 #
 # Top-level generic files

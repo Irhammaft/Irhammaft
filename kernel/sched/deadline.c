@@ -59,14 +59,48 @@ static inline struct dl_bw *dl_bw_of(int i)
 static inline int dl_bw_cpus(int i)
 {
 	struct root_domain *rd = cpu_rq(i)->rd;
-	int cpus = 0;
+	int cpus;
 
 	RCU_LOCKDEP_WARN(!rcu_read_lock_sched_held(),
 			 "sched RCU must be held");
+
+	if (cpumask_subset(rd->span, cpu_active_mask))
+		return cpumask_weight(rd->span);
+
+	cpus = 0;
+
 	for_each_cpu_and(i, rd->span, cpu_active_mask)
 		cpus++;
 
 	return cpus;
+}
+
+static inline unsigned long __dl_bw_capacity(int i)
+{
+	struct root_domain *rd = cpu_rq(i)->rd;
+	unsigned long cap = 0;
+
+	RCU_LOCKDEP_WARN(!rcu_read_lock_sched_held(),
+			 "sched RCU must be held");
+
+	for_each_cpu_and(i, rd->span, cpu_active_mask)
+		cap += capacity_orig_of(i);
+
+	return cap;
+}
+
+/*
+ * XXX Fix: If 'rq->rd == def_root_domain' perform AC against capacity
+ * of the CPU the task is running on rather rd's \Sum CPU capacity.
+ */
+static inline unsigned long dl_bw_capacity(int i)
+{
+	if (!static_branch_unlikely(&sched_asym_cpucapacity) &&
+	    capacity_orig_of(i) == SCHED_CAPACITY_SCALE) {
+		return dl_bw_cpus(i) << SCHED_CAPACITY_SHIFT;
+	} else {
+		return __dl_bw_capacity(i);
+	}
 }
 #else
 static inline struct dl_bw *dl_bw_of(int i)
@@ -77,6 +111,11 @@ static inline struct dl_bw *dl_bw_of(int i)
 static inline int dl_bw_cpus(int i)
 {
 	return 1;
+}
+
+static inline unsigned long dl_bw_capacity(int i)
+{
+	return SCHED_CAPACITY_SCALE;
 }
 #endif
 
@@ -2702,3 +2741,4 @@ void print_dl_stats(struct seq_file *m, int cpu)
 	print_dl_rq(m, cpu, &cpu_rq(cpu)->dl);
 }
 #endif /* CONFIG_SCHED_DEBUG */
+
