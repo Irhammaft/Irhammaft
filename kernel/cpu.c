@@ -1038,6 +1038,7 @@ static int cpu_down_maps_locked(unsigned int cpu, enum cpuhp_state target)
 
 static int do_cpu_down(unsigned int cpu, enum cpuhp_state target)
 {
+	struct cpumask newmask;
 	int err;
 
 	preempt_disable();
@@ -1278,7 +1279,7 @@ static cpumask_var_t frozen_cpus;
 int freeze_secondary_cpus(int primary)
 {
 	int cpu, error = 0;
-
+	unaffine_perf_irqs();
 	cpu_maps_update_begin();
 	unaffine_perf_irqs();
 	if (!cpu_online(primary))
@@ -1373,6 +1374,7 @@ void enable_nonboot_cpus(void)
 	reaffine_perf_irqs(false);
 out:
 	cpu_maps_update_done();
+	reaffine_perf_irqs();
 }
 
 static int __init alloc_frozen_cpus(void)
@@ -2507,3 +2509,4 @@ bool cpu_mitigations_auto_nosmt(void)
 	return cpu_mitigations == CPU_MITIGATIONS_AUTO_NOSMT;
 }
 EXPORT_SYMBOL_GPL(cpu_mitigations_auto_nosmt);
+
