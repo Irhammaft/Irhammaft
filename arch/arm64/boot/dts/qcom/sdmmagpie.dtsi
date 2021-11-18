@@ -3594,4 +3594,4 @@
 };
 
 #include "sdmmagpie-npu.dtsi"
-
+#include "thermal.dtsi"
