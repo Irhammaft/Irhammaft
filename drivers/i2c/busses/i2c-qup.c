@@ -1732,4 +1732,3 @@ module_platform_driver(qup_i2c_driver);
 
 MODULE_LICENSE("GPL v2");
 MODULE_ALIAS("platform:i2c_qup");
-

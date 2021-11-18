@@ -1861,4 +1861,3 @@ int ipa3_get_aqc_gsi_stats(struct ipa_uc_dbg_ring_stats *stats)
 
 	return 0;
 }
-
