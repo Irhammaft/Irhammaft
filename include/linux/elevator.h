@@ -64,6 +64,7 @@ struct elevator_ops
 	elevator_merge_fn *elevator_merge_fn;
 	elevator_merged_fn *elevator_merged_fn;
 	elevator_merge_req_fn *elevator_merge_req_fn;
+//	elevator_allow_bio_merge_fn *elevator_allow_bio_merge_fn;
 	elevator_allow_bio_merge_fn *elevator_allow_bio_merge_fn;
 	elevator_allow_rq_merge_fn *elevator_allow_rq_merge_fn;
 	elevator_bio_merged_fn *elevator_bio_merged_fn;
@@ -135,12 +136,21 @@ struct elevator_type
 {
 	/* managed by elevator core */
 	struct kmem_cache *icq_cache;
-
+//	struct elevator_ops ops;
 	/* fields provided by elevator implementation */
 	union {
 		struct elevator_ops sq;
 		struct elevator_mq_ops mq;
+//		struct elevator_ops ops;
+//		struct elevator_merge_req_fn;
+//		struct elevator_dispatch_fn;
+//		struct elevator_add_req_fn;
+//		struct elevator_former_req_fn;
+//		struct elevator_latter_req_fn;
+//		struct elevator_init_fn;
+//		struct elevator_exit_fn;	
 	} ops;
+//	struct elevator_ops ops;
 	size_t icq_size;	/* see iocontext.h */
 	size_t icq_align;	/* ditto */
 	struct elv_fs_entry *elevator_attrs;
@@ -237,6 +247,13 @@ extern struct request *elv_rb_latter_request(struct request_queue *, struct requ
 extern void elv_rb_add(struct rb_root *, struct request *);
 extern void elv_rb_del(struct rb_root *, struct request *);
 extern struct request *elv_rb_find(struct rb_root *, sector_t);
+
+/*
+ * Return values from elevator merger
+ */
+#define ELEVATOR_NO_MERGE	0
+#define ELEVATOR_FRONT_MERGE	1
+#define ELEVATOR_BACK_MERGE	2
 
 /*
  * Insertion selection

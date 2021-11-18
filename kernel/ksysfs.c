@@ -237,7 +237,7 @@ static struct attribute * kernel_attrs[] = {
 static const struct attribute_group kernel_attr_group = {
 	.attrs = kernel_attrs,
 };
-static unsigned int Lgentle_fair_sleepers = 1;
+static unsigned int Lgentle_fair_sleepers = 0;
 static unsigned int Larch_power = 1;
 
 extern void relay_gfs(unsigned int gfs);
@@ -306,6 +306,12 @@ static struct kobject *sched_features_kobj;
 	error = sysfs_create_group(kernel_kobj, &kernel_attr_group);
 	if (error)
 		goto kset_exit;
+
+	sched_features_kobj = kobject_create_and_add("sched", kernel_kobj);
+	error = sysfs_create_group(sched_features_kobj, &sched_features_attr_group);
+
+	if (error)
+	kobject_put(sched_features_kobj);
 
 	if (notes_size > 0) {
 		notes_attr.size = notes_size;
