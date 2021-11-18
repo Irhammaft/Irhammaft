@@ -72,8 +72,6 @@
 
 #include <trace/events/sched.h>
 
-#include <linux/ksm.h>
-
 int suid_dumpable = 0;
 
 static LIST_HEAD(formats);
