@@ -2028,7 +2028,7 @@ static void binder_deferred_fd_close(int fd)
 	if (!twcb)
 		return;
 	init_task_work(&twcb->twork, binder_do_fd_close);
-	__close_fd_get_file(fd, &twcb->file);
+//	__close_fd_get_file(fd, &twcb->file);
 	if (twcb->file)
 		task_work_add(current, &twcb->twork, true);
 	else
@@ -4550,14 +4550,14 @@ static void binder_free_proc(struct binder_proc *proc)
 	BUG_ON(!list_empty(&proc->todo));
 	BUG_ON(!list_empty(&proc->delivered_death));
 ////
-	if (proc->outstanding_txns)
-		pr_warn("%s: Unexpected outstanding_txns %d\n",
-			__func__, proc->outstanding_txns);
-	device = container_of(proc->context, struct binder_device, context);
-	if (refcount_dec_and_test(&device->ref)) {
-		kfree(proc->context->name);
-		kfree(device);
-	}
+//	if (proc->outstanding_txns)
+//		pr_warn("%s: Unexpected outstanding_txns %d\n",
+//			__func__, proc->outstanding_txns);
+//	device = container_of(proc->context, struct binder_device, context);
+//	if (refcount_dec_and_test(&device->ref)) {
+//		kfree(proc->context->name);
+//		kfree(device);
+//	}
 //>>>>>>> 5d1dd0cf51a0... android: sync android12-5.4 binder
 	binder_alloc_deferred_release(&proc->alloc);
 	put_task_struct(proc->tsk);
