@@ -920,3 +920,4 @@ void ipa_uc_offload_dereg_rdyCB(enum ipa_uc_offload_proto proto)
 		ipa_ntn_uc_dereg_rdyCB();
 }
 EXPORT_SYMBOL(ipa_uc_offload_dereg_rdyCB);
+
