@@ -74,6 +74,11 @@ static char boost_buf[128];
 const char *board_sensor;
 static char board_sensor_temp[128];
 
+static int lock_enable = 0;
+static int lock_sconfig = -1;
+module_param(lock_enable, int, 0644);
+module_param(lock_sconfig, int, 0644);
+
 static atomic_t in_suspend;
 static bool power_off_triggered;
 
