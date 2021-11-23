@@ -11306,9 +11306,7 @@ static int load_balance(int this_cpu, struct rq *this_rq,
 
 	env.prefer_spread = (idle != CPU_NOT_IDLE &&
 				prefer_spread_on_idle(this_cpu) &&
-				!((sd->flags & SD_ASYM_CPUCAPACITY) &&
-				 !cpumask_test_cpu(this_cpu,
-						 &asym_cap_sibling_cpus)));
+				!((sd->flags & SD_ASYM_CPUCAPACITY) ));
 
 	cpumask_and(cpus, sched_domain_span(sd), cpu_active_mask);
 
@@ -11737,8 +11735,7 @@ static int idle_balance(struct rq *this_rq, struct rq_flags *rf)
 		}
 
 		if (prefer_spread && !force_lb &&
-			(sd->flags & SD_ASYM_CPUCAPACITY) &&
-			!(cpumask_test_cpu(this_cpu, &asym_cap_sibling_cpus)))
+			(sd->flags & SD_ASYM_CPUCAPACITY))
 			avg_idle = this_rq->avg_idle;
 
 		if (avg_idle < curr_cost + sd->max_newidle_lb_cost) {
