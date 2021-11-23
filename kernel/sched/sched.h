@@ -109,7 +109,6 @@ struct sched_cluster {
 	u64 aggr_grp_load;
 };
 
-extern cpumask_t asym_cap_sibling_cpus;
 #endif /* CONFIG_SCHED_WALT */
 
 /* task_struct::on_rq states: */
@@ -2535,6 +2534,12 @@ enum sched_boost_policy {
 #define RESTRAINED_BOOST_DISABLE -3
 #define MAX_NUM_BOOST_TYPE (RESTRAINED_BOOST+1)
 
+static inline int asym_cap_siblings(int cpu1, int cpu2)
+{
+	return (cpumask_test_cpu(cpu1, &asym_cap_sibling_cpus) &&
+		cpumask_test_cpu(cpu2, &asym_cap_sibling_cpus));
+}
+
 #ifdef CONFIG_SCHED_WALT
 
 #define WALT_MANY_WAKEUP_DEFAULT 1000
@@ -2582,12 +2587,6 @@ extern int update_preferred_cluster(struct related_thread_group *grp,
 			struct task_struct *p, u32 old_load, bool from_tick);
 extern void set_preferred_cluster(struct related_thread_group *grp);
 extern void add_new_task_to_grp(struct task_struct *new);
-
-static inline int asym_cap_siblings(int cpu1, int cpu2)
-{
-	return (cpumask_test_cpu(cpu1, &asym_cap_sibling_cpus) &&
-		cpumask_test_cpu(cpu2, &asym_cap_sibling_cpus));
-}
 
 static inline int cpu_max_possible_capacity(int cpu)
 {
