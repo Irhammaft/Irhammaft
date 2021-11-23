@@ -2843,7 +2843,6 @@ static inline bool is_min_capacity_cpu(int cpu)
 #endif
 }
 
-static inline int asym_cap_siblings(int cpu1, int cpu2) { return 0; }
 
 static inline void set_preferred_cluster(struct related_thread_group *grp) { }
 
