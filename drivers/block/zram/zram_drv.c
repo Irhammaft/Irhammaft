@@ -1987,6 +1987,7 @@ static int zram_open(struct block_device *bdev, fmode_t mode)
 	return ret;
 }
 
+#ifdef CONFIG_ZRAM_WRITEBACK
 static const struct block_device_operations zram_devops = {
 	.open = zram_open,
 	.swap_slot_free_notify = zram_slot_free_notify,
@@ -1996,6 +1997,7 @@ static const struct block_device_operations zram_devops = {
 	.rw_page = zram_rw_page,
 	.owner = THIS_MODULE
 };
+#endif
 
 static DEVICE_ATTR_WO(compact);
 static DEVICE_ATTR_RW(disksize);
