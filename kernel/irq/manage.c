@@ -1251,7 +1251,8 @@ static void affine_one_perf_irq(struct irq_desc *desc, unsigned int perf_flag)
 
 void setup_perf_irq_locked(struct irq_desc *desc, unsigned int perf_flag)
 {
-	add_desc_to_perf_list(desc);
+//	add_desc_to_perf_list(desc);
+	add_desc_to_perf_list(desc, perf_flag);
 	raw_spin_lock(&perf_irqs_lock);
 	affine_one_perf_irq(desc, perf_flag);
 	raw_spin_unlock(&perf_irqs_lock);
