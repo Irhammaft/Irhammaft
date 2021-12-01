@@ -1,5 +1,5 @@
 /* Copyright (c) 2018-2020 The Linux Foundation. All rights reserved.
- *
+ * Copyright (C) 2020 XiaoMi, Inc.
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
  * only version 2 as published by the Free Software Foundation.
@@ -1806,7 +1806,7 @@ static int qg_get_prop_soc_decimal(struct qpnp_qg *chip, int *val)
 
 	soc_dec = chip->sys_soc % 100;
 	soc = qg_get_prop_soc_decimal_rate(chip, &dec_rate);
-	pr_err("debug soc_dec=%d dec_rate=%d last_val=%d last_soc_dec=%d last_hal_soc=%d\n",
+	pr_debug("debug soc_dec=%d dec_rate=%d last_val=%d last_soc_dec=%d last_hal_soc=%d\n",
 			soc_dec, dec_rate, last_val, last_soc_dec, last_hal_soc);
 
 	if (soc_dec >= 0 && soc_dec < (50 - dec_rate))
@@ -1834,7 +1834,7 @@ static int qg_get_prop_soc_decimal(struct qpnp_qg *chip, int *val)
 	if (last_hal_soc != hal_soc)
 		last_hal_soc = hal_soc;
 
-	pr_err("debug val=%d soc_dec=%d sys_soc=%d dec_rate=%d soc=%d hal_soc=%d last_val=%d last_soc_dec=%d last_hal_soc=%d\n",
+	pr_debug("debug val=%d soc_dec=%d sys_soc=%d dec_rate=%d soc=%d hal_soc=%d last_val=%d last_soc_dec=%d last_hal_soc=%d\n",
 			*val, soc_dec, chip->sys_soc, dec_rate, soc, hal_soc, last_val, last_soc_dec, last_hal_soc);
 
 	return 0;
@@ -2818,38 +2818,6 @@ static void qg_sleep_exit_work(struct work_struct *work)
 }
 
 #ifdef CONFIG_BATT_VERIFY_BY_DS28E16
-/*
-static int battery_authentic_period_ms = 10000;
-#define BATTERY_AUTHENTIC_COUNT_MAX 5
-int retry_battery_authentic_result;
-static void battery_authentic_work(struct work_struct *work)
-{
-	int rc;
-	union power_supply_propval pval = {0,};
-
-	struct qpnp_qg *chip = container_of(work,
-				struct qpnp_qg,
-				battery_authentic_work.work);
-
-	rc = power_supply_get_property(chip->qg_psy,
-					POWER_SUPPLY_PROP_AUTHENTIC, &pval);
-	if (pval.intval != true) {
-		retry_battery_authentic_result++;
-		if (retry_battery_authentic_result < BATTERY_AUTHENTIC_COUNT_MAX) {
-			pr_err("battery authentic work begin to restart.\n");
-			schedule_delayed_work(&chip->battery_authentic_work,
-				msecs_to_jiffies(battery_authentic_period_ms));
-		}
-
-		if (retry_battery_authentic_result == BATTERY_AUTHENTIC_COUNT_MAX) {
-			pr_err("FG: authentic prop is %d\n", pval.intval);
-		}
-	} else {
-		pr_err("FG: authentic prop is %d\n", pval.intval);
-	}
-}
-*/
-
 static int ds_romid_period_ms = 1000;
 int retry_ds_romid;
 #define DS_ROMID_COUNT_MAX 5
@@ -5220,14 +5188,6 @@ static int qpnp_qg_probe(struct platform_device *pdev)
 		pr_err("Failed to initialize QG psy, rc=%d\n", rc);
 		goto fail_votable;
 	}
-	/*
-#ifdef CONFIG_BATT_VERIFY_BY_DS28E16
-	if (chip->battery_authentic_result != true) {
-		schedule_delayed_work(&chip->battery_authentic_work,
-				msecs_to_jiffies(2000));
-	}
-#endif
-	*/
 
 	rc = qg_request_irqs(chip);
 	if (rc < 0) {

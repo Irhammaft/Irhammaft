@@ -1,5 +1,5 @@
 /* Copyright (c) 2017-2019 The Linux Foundation. All rights reserved.
- *
+ * Copyright (C) 2020 XiaoMi, Inc.
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
  * only version 2 as published by the Free Software Foundation.
@@ -470,8 +470,8 @@ static int get_val(struct range_data *range, int hysteresis, int current_index,
 	 * temperature is a signed int, so cannot compare them when battery temp is below 0,
 	 * we treat it as 0 degree when the parameter threshold(battery temp) is below 0.
 	 */
-	//if (threshold < 0)
-	//	threshold = 0;
+	if (threshold < 0)
+		threshold = 0;
 
 	/*
 	 * If the threshold is lesser than the minimum allowed range,
@@ -699,7 +699,6 @@ static void ffc_chg_term_current_work(struct work_struct *work)
 
 	rc = power_supply_get_property(chip->bms_psy,
 			POWER_SUPPLY_PROP_FASTCHARGE_MODE, &pval);
-	//pr_err("%s:fastcharge_mode=%d\n", __func__, pval.intval);
 	if (rc < 0) {
 		pr_err("Couldn't read fastcharge mode fail rc=%d\n", rc);
           	return;
@@ -859,7 +858,6 @@ static int handle_jeita(struct step_chg_info *chip)
 	batt_soc = pval.intval;
 	rc = power_supply_get_property(chip->bms_psy,
 			POWER_SUPPLY_PROP_FASTCHARGE_MODE, &pval);
-	pr_err("%s:fastcharge_mode=%d\n", __func__, pval.intval);
 	if (rc < 0) {
 		pr_err("Couldn't read fastcharge mode fail rc=%d\n", rc);
 		return rc;
@@ -882,7 +880,6 @@ static int handle_jeita(struct step_chg_info *chip)
 				rc = power_supply_set_property(chip->batt_psy,
 						POWER_SUPPLY_PROP_CHARGE_TERM_CURRENT, &pval);
 		}
-		pr_info("batt_temp = %d, ffc_chg_term_current=%d\n", batt_temp, chg_term_current);
 		}
 	}
 
@@ -895,9 +892,6 @@ static int handle_jeita(struct step_chg_info *chip)
 
 	if (!chip->usb_icl_votable)
 		goto set_jeita_fv;
-
-	pr_err("%s = %d FCC = %duA FV = %duV\n",
-		chip->jeita_fcc_config->param.prop_name, batt_temp, fcc_ua, fv_uv);
 
 	/* set and clear fast charge mode when soft jeita trigger and clear */
 	rc = power_supply_get_property(chip->usb_psy,
@@ -926,7 +920,6 @@ static int handle_jeita(struct step_chg_info *chip)
 		(hvdcp3_charger_type == STEP_HVDCP3_CLASSB_27W)) {
 		if ((temp >= BATT_WARM_THRESHOLD || temp <= BATT_COOL_THRESHOLD)
 					&& !fast_mode_dis) {
-			pr_err("temp:%d disable fastcharge mode\n", temp);
 			pval.intval = false;
 			rc = power_supply_set_property(chip->usb_psy,
 					POWER_SUPPLY_PROP_FASTCHARGE_MODE, &pval);
@@ -938,7 +931,6 @@ static int handle_jeita(struct step_chg_info *chip)
 		} else if ((temp < BATT_WARM_THRESHOLD - chip->jeita_fv_config->param.hysteresis)
 					&& (temp > BATT_COOL_THRESHOLD + chip->jeita_fv_config->param.hysteresis)
 						&& fast_mode_dis) {
-			pr_err("temp:%d enable fastcharge mode\n", temp);
 			pval.intval = true;
 			rc = power_supply_set_property(chip->usb_psy,
 					POWER_SUPPLY_PROP_FASTCHARGE_MODE, &pval);
