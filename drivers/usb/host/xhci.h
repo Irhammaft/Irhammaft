@@ -991,6 +991,7 @@ struct xhci_interval_bw_table {
 	unsigned int		ss_bw_out;
 };
 
+#define EP_CTX_PER_DEV		31
 
 struct xhci_virt_device {
 	struct usb_device		*udev;
@@ -1005,7 +1006,7 @@ struct xhci_virt_device {
 	struct xhci_container_ctx       *out_ctx;
 	/* Used for addressing devices and configuration changes */
 	struct xhci_container_ctx       *in_ctx;
-	struct xhci_virt_ep		eps[31];
+	struct xhci_virt_ep		eps[EP_CTX_PER_DEV];
 	u8				fake_port;
 	u8				real_port;
 	struct xhci_interval_bw_table	*bw_table;
@@ -1528,7 +1529,7 @@ struct xhci_td {
 };
 
 /* xHCI command default timeout value */
-#define XHCI_CMD_DEFAULT_TIMEOUT	(5 * 100)
+#define XHCI_CMD_DEFAULT_TIMEOUT	(5 * HZ)
 
 /* command descriptor */
 struct xhci_cd {
@@ -1633,7 +1634,7 @@ struct urb_priv {
  * (1K bytes * 8bytes/bit) / (4*32 bits) = 64 segment entries in the table,
  * meaning 64 ring segments.
  * Initial allocated size of the ERST, in number of entries */
-#define	ERST_NUM_SEGS	4
+#define	ERST_NUM_SEGS	1
 /* Initial allocated size of the ERST, in number of entries */
 #define	ERST_SIZE	64
 /* Initial number of event segment rings allocated */

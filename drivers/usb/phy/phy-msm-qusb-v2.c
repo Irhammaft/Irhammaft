@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2014-2020, The Linux Foundation. All rights reserved.
- *
+ * Copyright (C) 2020 XiaoMi, Inc.
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
  * only version 2 as published by the Free Software Foundation.
@@ -379,8 +379,8 @@ static void qusb_phy_get_tune1_param(struct qusb_phy *qphy)
 	bit_mask = (bit_mask << qphy->efuse_num_of_bits) - 1;
 
 	/*
-	 * if efuse reg is updated (i.e non-zero) then use it to program
-	 * tune parameters
+	 * For 8nm zero is treated as a valid efuse value and driver
+	 * should program the tune1 reg based on efuse value
 	 */
 	qphy->tune_val = readl_relaxed(qphy->efuse_reg);
 	pr_debug("%s(): bit_mask:%d efuse based tune1 value:%d\n",
@@ -389,10 +389,8 @@ static void qusb_phy_get_tune1_param(struct qusb_phy *qphy)
 	qphy->tune_val = TUNE_VAL_MASK(qphy->tune_val,
 				qphy->efuse_bit_pos, bit_mask);
 	reg = readb_relaxed(qphy->base + qphy->phy_reg[PORT_TUNE1]);
-	if (qphy->tune_val) {
-		reg = reg & 0x0f;
-		reg |= (qphy->tune_val << 4);
-	}
+	reg = reg & 0x0f;
+	reg |= (qphy->tune_val << 4);
 
 	qphy->tune_val = reg;
 }
