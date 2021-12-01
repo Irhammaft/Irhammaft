@@ -131,7 +131,7 @@ static ssize_t power_supply_show_property(struct device *dev,
 				dev_dbg(dev, "driver has no data for `%s' property\n",
 					attr->attr.name);
 			else if (ret != -ENODEV && ret != -EAGAIN)
-				dev_dbg(dev,
+				dev_err_ratelimited(dev,
 					"driver failed to report `%s' property: %zd\n",
 					attr->attr.name, ret);
 			return ret;
@@ -488,6 +488,18 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(ti_fault_status),
 	POWER_SUPPLY_ATTR(ti_reg_status),
 	POWER_SUPPLY_ATTR(ti_set_bus_protection_for_qc3),
+      /*POWER_SUPPLY_ATTR(fastcharge_mode),
+	POWER_SUPPLY_ATTR(dp_dm_bq),
+	POWER_SUPPLY_ATTR(pd_authentication),
+	POWER_SUPPLY_ATTR(termination_current),
+	POWER_SUPPLY_ATTR(ffc_termination_current),
+	POWER_SUPPLY_ATTR(sys_termination_current),
+	POWER_SUPPLY_ATTR(ffc_sys_termination_current),
+	POWER_SUPPLY_ATTR(vbatt_full_vol),
+	POWER_SUPPLY_ATTR(fcc_vbatt_full_vol),
+	POWER_SUPPLY_ATTR(ki_coeff_current),
+	POWER_SUPPLY_ATTR(recharge_vbat),
+	POWER_SUPPLY_ATTR(step_vfloat_index),*/
 #ifdef CONFIG_BATT_VERIFY_BY_DS28E16
 	/* battery verify properties */
 	POWER_SUPPLY_ATTR(romid),
@@ -509,6 +521,14 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(reverse_charge_mode),
 #endif
 	POWER_SUPPLY_ATTR(charge_awske_state),
+	/* DIV 2 properties */
+      /*POWER_SUPPLY_ATTR(div_2_mode),
+	POWER_SUPPLY_ATTR(reverse_chg_mode),
+	POWER_SUPPLY_ATTR(reverse_chg_state),
+	POWER_SUPPLY_ATTR(reverse_gpio_state),
+	POWER_SUPPLY_ATTR(reset_div_2_mode),
+	POWER_SUPPLY_ATTR(aicl_enable),
+	POWER_SUPPLY_ATTR(otg_state),*/
 	/* Local extensions of type int64_t */
 	POWER_SUPPLY_ATTR(charge_counter_ext),
 	/* Properties of type `const char *' */
@@ -569,29 +589,12 @@ void power_supply_init_attrs(struct device_type *dev_type)
 		__power_supply_attrs[i] = &power_supply_attrs[i].attr;
 }
 
-static char *kstruprdup(const char *str, gfp_t gfp)
-{
-	char *ret, *ustr;
-
-	ustr = ret = kmalloc(strlen(str) + 1, gfp);
-
-	if (!ret)
-		return NULL;
-
-	while (*str)
-		*ustr++ = toupper(*str++);
-
-	*ustr = 0;
-
-	return ret;
-}
-
 int power_supply_uevent(struct device *dev, struct kobj_uevent_env *env)
 {
 	struct power_supply *psy = dev_get_drvdata(dev);
 	int ret = 0, j;
 	char *prop_buf;
-	char *attrname;
+	char attrname[64];
 
 	if (!psy || !psy->desc) {
 		dev_dbg(dev, "No power supply yet\n");
@@ -608,7 +611,8 @@ int power_supply_uevent(struct device *dev, struct kobj_uevent_env *env)
 
 	for (j = 0; j < psy->desc->num_properties; j++) {
 		struct device_attribute *attr;
-		char *line;
+		const char *str;
+		char *line, *ustr;
 
 		attr = &power_supply_attrs[psy->desc->properties[j]];
 
@@ -627,14 +631,14 @@ int power_supply_uevent(struct device *dev, struct kobj_uevent_env *env)
 		if (line)
 			*line = 0;
 
-		attrname = kstruprdup(attr->attr.name, GFP_KERNEL);
-		if (!attrname) {
-			ret = -ENOMEM;
-			goto out;
-		}
+		str = attr->attr.name;
+		ustr = attrname;
+		while (*str)
+			*ustr++ = toupper(*str++);
+
+		*ustr = 0;
 
 		ret = add_uevent_var(env, "POWER_SUPPLY_%s=%s", attrname, prop_buf);
-		kfree(attrname);
 		if (ret)
 			goto out;
 	}

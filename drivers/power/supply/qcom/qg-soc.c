@@ -1,5 +1,5 @@
 /* Copyright (c) 2018-2020 The Linux Foundation. All rights reserved.
- * Copyright (C) 2020 XiaoMi, Inc.
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
  * only version 2 as published by the Free Software Foundation.
@@ -148,15 +148,28 @@ static int qg_process_tcss_soc(struct qpnp_qg *chip, int sys_soc)
 	if (chip->sys_soc >= QG_MAX_SOC && chip->soc_tcss >= QG_MAX_SOC)
 		goto exit_soc_scale;
 
-	rc = power_supply_get_property(chip->qg_psy,
+	 rc = power_supply_get_property(chip->qg_psy,
 			POWER_SUPPLY_PROP_BATT_FULL_CURRENT, &prop);
-	if (rc < 0) {
+	 if (rc < 0) {
 		pr_err("failed to get full_current, rc = %d\n", rc);
 		goto exit_soc_scale;
-	} else {
+	 } else {
 		qg_iterm_ua = -1 * prop.intval;
-	}
+	 }
 
+	 pr_err("[%s] qg_iterm_ua=%d\n", __func__, qg_iterm_ua);
+/*
+	 rc = power_supply_get_property(chip->batt_psy,
+			POWER_SUPPLY_PROP_STATUS, &prop);
+	 pr_err("charge_status = %d\n", prop.intval);
+	 if (rc < 0) {
+		pr_err("failed to get charge_status, rc = %d\n", rc);
+		goto exit_soc_scale;
+	 } else if (prop.intval != POWER_SUPPLY_STATUS_CHARGING) {
+		pr_err("charge_status is not charging, rc = %d\n", rc);
+		goto exit_soc_scale;
+	 }
+*/
 	rc = power_supply_get_property(chip->batt_psy,
 			POWER_SUPPLY_PROP_HEALTH, &prop);
 	if (!rc && (prop.intval == POWER_SUPPLY_HEALTH_COOL ||

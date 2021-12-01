@@ -1,5 +1,5 @@
 /* Copyright (c) 2018-2020 The Linux Foundation. All rights reserved.
- * Copyright (C) 2020 XiaoMi, Inc.
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
  * only version 2 as published by the Free Software Foundation.
@@ -703,6 +703,7 @@ struct smb_charger {
 	bool			apsd_ext_timeout;
 	bool			qc3p5_detected;
 
+	//bool                    esr_reduce_fcc;
 	/* fast full charge related */
 	int 		chg_term_current_thresh_hi_from_dts;
 	bool			support_ffc;

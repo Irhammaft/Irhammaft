@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (C) 2015 Maxim Integrated Products, Inc., All Rights Reserved.
- * Copyright (C) 2020 XiaoMi, Inc.
+ *
  *******************************************************************************
  *
  *  DS28E16.c - DS28E16 device module. Requires low level 1-Wire connection.
@@ -31,10 +31,10 @@
 #include <linux/regmap.h>
 #include <linux/random.h>
 
-#define ds_info	pr_debug
-#define ds_dbg	pr_debug
+#define ds_info	pr_err
+#define ds_dbg	pr_err
 #define ds_err	pr_err
-#define ds_log	pr_debug
+#define ds_log	pr_err
 
 struct ds28e16_data {
 	struct platform_device *pdev;
@@ -822,24 +822,20 @@ unsigned char *Challenge, unsigned char *Secret_Seeds, unsigned char *S_Secret)
 	int msg_len = 0;
 	unsigned char flag = DS_FALSE;
 
-	//if (flag_mi_auth_result)
 	if (mi_auth_result == DS_TRUE)
 		return mi_auth_result;
 
-	//if (anon != ANONYMOUS) {
+	if (ds28el16_Read_RomID_retry(mi_romid) != DS_TRUE) {
+		ow_reset();
+		return ERROR_R_ROMID;
+	}
 
-		if (ds28el16_Read_RomID_retry(mi_romid) != DS_TRUE) {
-			ow_reset();
-			return ERROR_R_ROMID;
-		}
-
-		if (ds28el16_get_page_status_retry(status_chip) == DS_TRUE) {
-			MANID[0] = status_chip[4];
-		} else {
-			ow_reset();
-			return ERROR_R_STATUS;
-		}
-	//}
+	if (ds28el16_get_page_status_retry(status_chip) == DS_TRUE) {
+		MANID[0] = status_chip[4];
+	} else {
+		ow_reset();
+		return ERROR_R_STATUS;
+	}
 
 	// DS28E16 calculate its session secret
 	flag = DS28E16_cmd_computeS_Secret_retry(anon,
@@ -1220,7 +1216,7 @@ static int verify_get_property(struct power_supply *psy, enum power_supply_prope
 			return -EAGAIN;
 		break;
 	default:
-		ds_dbg("unsupported property %d\n", psp);
+		ds_err("unsupported property %d\n", psp);
 		return -ENODATA;
 	}
 
@@ -1262,7 +1258,7 @@ static int verify_set_property(struct power_supply *psy,
 		auth_BDCONST   = val->intval;
 		break;
 	default:
-		ds_dbg("unsupported property %d\n", prop);
+		ds_err("unsupported property %d\n", prop);
 		return -ENODATA;
 	}
 
