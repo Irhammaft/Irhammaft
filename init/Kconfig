@@ -952,7 +952,7 @@ config UCLAMP_TASK_GROUP
 	bool "Utilization clamping per group of tasks"
 	depends on CGROUP_SCHED
 	depends on UCLAMP_TASK
-	default n
+	default y
 	help
 	  This feature enables the scheduler to track the clamped utilization
 	  of each CPU based on RUNNABLE tasks currently scheduled on that CPU.
@@ -1187,7 +1187,7 @@ config SCHED_AUTOGROUP
 
 config SCHED_TUNE
 	bool "Boosting for CFS tasks (EXPERIMENTAL)"
-	depends on SMP
+	depends on SMP && !UCLAMP_TASK
 	help
 	  This option enables support for task classification using a new
 	  cgroup controller, schedtune. Schedtune allows tasks to be given
