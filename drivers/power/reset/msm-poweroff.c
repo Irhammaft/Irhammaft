@@ -314,9 +314,8 @@ static void msm_restart_prepare(const char *cmd)
 	need_warm_reset = true;
 
 	/* Hard reset the PMIC unless memory contents must be maintained. */
-        if (in_panic || force_warm_reboot || need_warm_reset) {
-		pr_info("a warm reset of the system with in_panic %d or need_warm_reset %d\n", in_panic, need_warm_reset);
-		qpnp_pon_system_pwr_off(PON_POWER_OFF_WARM_RESET);
+	if (force_warm_reboot || need_warm_reset)
+	qpnp_pon_system_pwr_off(PON_POWER_OFF_WARM_RESET);
 	} else
 		qpnp_pon_system_pwr_off(PON_POWER_OFF_HARD_RESET);
 
