@@ -111,7 +111,6 @@ static int f2fs_vm_page_mkwrite(struct vm_fault *vmf)
 		f2fs_put_dnode(&dn);
 		__do_map_lock(sbi, F2FS_GET_BLOCK_PRE_AIO, false);
 	}
-
 #ifdef CONFIG_F2FS_FS_COMPRESSION
 	if (!need_alloc) {
 		set_new_dnode(&dn, inode, NULL, NULL, 0);
@@ -677,6 +676,7 @@ truncate_out:
 }
 
 static int do_truncate_blocks(struct inode *inode, u64 from, bool lock)
+//int f2fs_do_truncate_blocks(struct inode *inode, u64 from, bool lock)
 {
 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
 	struct dnode_of_data dn;
