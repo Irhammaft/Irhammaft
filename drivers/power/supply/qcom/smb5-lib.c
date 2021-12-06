@@ -6374,15 +6374,6 @@ void smblib_usb_plugin_locked(struct smb_charger *chg)
 		dual_role_instance_changed(chg->dual_role);
 	smblib_dbg(chg, PR_INTERRUPT, "IRQ: usbin-plugin %s\n",
 					vbus_rising ? "attached" : "detached");
-
-#if CONFIG_TOUCHSCREEN_COMMON
-	g_touchscreen_usb_pulgin.usb_plugged_in = vbus_rising;
-	if (g_touchscreen_usb_pulgin.valid){
-		g_touchscreen_usb_pulgin.event_callback();
-	}
-
-#endif
-
 }
 
 irqreturn_t usb_plugin_irq_handler(int irq, void *data)
