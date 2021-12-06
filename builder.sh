@@ -1,6 +1,6 @@
-git clone https://github.com/SreekanthPalakurthi/Clang-dumpyard.git --depth=1 clang
-git clone https://github.com/SreekanthPalakurthi/Clang-dumpyard.git -b gcc64 --depth=1 gcc
-git clone https://github.com/SreekanthPalakurthi/Clang-dumpyard.git -b gcc32  --depth=1 gcc32
+git clone --depth=1 https://gitlab.com/zaherr/clang -b master clang
+git clone --depth=1 https://gitlab.com/zaherr/64 -b master gcc
+git clone --depth=1 https://gitlab.com/zaherr/32 -b master1 gcc32
 git clone --depth=1 https://gitlab.com/zaherr/anykernel3 -b master surya
 export TZ=Asia/Kolkata 
 IMAGE=$(pwd)/out/arch/arm64/boot/Image.gz
