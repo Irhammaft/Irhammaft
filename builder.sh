@@ -1,45 +1,63 @@
-git clone --depth=1 https://gitlab.com/zaherr/clang -b master clang
-git clone --depth=1 https://gitlab.com/zaherr/64 -b master gcc
-git clone --depth=1 https://gitlab.com/zaherr/32 -b master gcc32
+git clone https://github.com/SreekanthPalakurthi/Clang-dumpyard.git --depth=1 clang
+git clone https://github.com/SreekanthPalakurthi/Clang-dumpyard.git -b gcc64 --depth=1 gcc
+git clone https://github.com/SreekanthPalakurthi/Clang-dumpyard.git -b gcc32  --depth=1 gcc32
 git clone --depth=1 https://gitlab.com/zaherr/anykernel3 -b master surya
-
-export TZ=Asia/Indonesia
+export TZ=Asia/Kolkata 
 IMAGE=$(pwd)/out/arch/arm64/boot/Image.gz
 DTBO=$(pwd)/out/arch/arm64/boot/dtbo.img
 TANGGAL=${VERSION}-$(date +"%d%m%H%M")
 START=$(date +"%s")
+CLANG_VERSION=$(clang/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
-export VERSION=SIX
+KERNEL_DIR=$(pwd)
+PATH="${KERNEL_DIR}/clang/bin:${KERNEL_DIR}/gcc/bin:${KERNEL_DIR}/gcc32/bin:${PATH}"
 export ARCH=arm64
 export SUBARCH=arm64
-export KBUILD_BUILD_HOST="Venoom"
+export KBUILD_BUILD_HOST="VEnoom"
 export KBUILD_BUILD_USER="WartegCI"
 export chat_id="-1001642575104"
 export DEF="surya_defconfig"
-TC_DIR=${PWD}
-GCC64_DIR="${PWD}/gcc64"
-GCC32_DIR="${PWD}/gcc32"
-export PATH="$TC_DIR/bin/:$GCC64_DIR/bin/:$GCC32_DIR/bin/:/usr/bin:$PATH"
+export VERSION=X10-BETA
+DEF_REG=0
 BUILD_DTBO=1
 SIGN_BUILD=0
+INCREMENTAL=1
 
-echo "CONFIG_PATCH_INITRAMFS=y" >> arch/arm64/configs/surya_defconfig
+if [ $INCREMENTAL = 0 ]
+then
+	make clean && make mrproper && rm -rf out && cd AnyKernel3/ && rm -rf * && git reset --hard && cd ..
+fi
+
+
+if [ $DEF_REG = 1 ]
+then
+make O=out ARCH=arm64 ${DEF}
+mv out/.config arch/arm64/configs/${DEF}
+		git add arch/arm64/configs/${DEF}
+		git commit -m "defconfig: Regenerate
+						This is an auto-generated commit"
+fi
 
 curl -s -X POST https://api.telegram.org/bot${TOKEN}/sendMessage -d text="Buckle up bois ${BRANCH} build has started" -d chat_id=${chat_id} -d parse_mode=HTML
 
-   make O=out ARCH=arm64 $DEF
-       make -j$(nproc --all) O=out \
-				ARCH=arm64 \
-				CROSS_COMPILE_ARM32=arm-eabi- \
-				CROSS_COMPILE=aarch64-elf- \
-				AR=llvm-ar \
-				NM=llvm-nm \
-				OBJCOPY=llvm-objcopy \
-				LD=aarch64-elf-ld.lld 2>&1 | tee build.log
+echo "CONFIG_PATCH_INITRAMFS=y" >> arch/arm64/configs/surya_defconfig
 
+make O=out ARCH=arm64 $DEF
+	make -j$(nproc --all) O=out \
+                      CC=clang \
+		      CLANG_TRIPLE=aarch64-linux-gnu- \
+                      CROSS_COMPILE=aarch64-linux-android- \
+                      CROSS_COMPILE_ARM32=arm-linux-androideabi- \
+		      LD=ld.lld \
+		      AS=llvm-as \
+		      AR=llvm-ar \
+                      NM=llvm-nm \
+                      OBJCOPY=llvm-objcopy \
+                      OBJDUMP=llvm-objdump \
+                      STRIP=llvm-strip 2>&1 | tee build.log
+		      
 END=$(date +"%s")
 DIFF=$((END - START))
-
 if [ -f $(pwd)/out/arch/arm64/boot/Image.gz ]
 	then
         if [ BUILD_DTBO = 1 ]
@@ -50,13 +68,13 @@ if [ -f $(pwd)/out/arch/arm64/boot/Image.gz ]
         fi
 # Post to CI channel
 curl -s -X POST https://api.telegram.org/bot${TOKEN}/sendMessage -d text="Branch: <code>$(git rev-parse --abbrev-ref HEAD)</code>
-Compiler Used : <code>GCC aka Giga Chad Compiler</code>
+Compiler Used : <code>${CLANG_VERSION} </code>
 Latest Commit: <code>$(git log --pretty=format:'%h : %s' -1)</code>
 <i>Build compiled successfully in $((DIFF / 60)) minute(s) and $((DIFF % 60)) seconds</i>" -d chat_id=${chat_id} -d parse_mode=HTML
 #curl -s -X POST https://api.telegram.org/bot${TOKEN}/sendMessage -d text="Flash now else bun" -d chat_id=${chat_id} -d parse_mode=HTML
 
 cp $(pwd)/out/arch/arm64/boot/Image.gz $(pwd)/AnyKernel3
-cp $(pwd)/out/arch/arm64/boot/dtb.img $(pwd)/AnyKernel3/dtb.img
+cp $(pwd)/out/arch/arm64/boot/dtb.img $(pwd)/AnyKernel3
 
         if [ -f ${DTBO} ]
         then
@@ -64,15 +82,14 @@ cp $(pwd)/out/arch/arm64/boot/dtb.img $(pwd)/AnyKernel3/dtb.img
         fi
 
         cd AnyKernel3
-        make normal
-        ZIP_FINAL=$(echo *.zip)
+        zip -r9 Venoom-surya-${TANGGAL}.zip * --exclude *.jar
 
         if [ SIGN_BUILD = 1 ]
         then
                 java -jar zipsigner-4.0.jar  Venoom-surya-${TANGGAL}.zip Venoom-surya-${TANGGAL}-signed.zip
 
         curl -F chat_id="${chat_id}"  \
-                    -F caption="sha1sum: $(sha1sum Ven*-signed.zip | awk '{ print $1 }')" \
+                    -F caption="sha1sum: $(sha1sum Veno*-signed.zip | awk '{ print $1 }')" \
                     -F document=@"$(pwd)/Venoom-surya-${TANGGAL}-signed.zip" \
                     https://api.telegram.org/bot${TOKEN}/sendDocument
 
@@ -80,8 +97,8 @@ cp $(pwd)/out/arch/arm64/boot/dtb.img $(pwd)/AnyKernel3/dtb.img
         else
 
         curl -F chat_id="${chat_id}"  \
-                    -F caption="sha1sum: $(sha1sum Ven*.zip | awk '{ print $1 }')" \
-                    -F document=@"$ZIP_FINAL" \
+                    -F caption="sha1sum: $(sha1sum Veno*.zip | awk '{ print $1 }')" \
+                    -F document=@"$(pwd)/Venoom-surya-${TANGGAL}.zip" \
                     https://api.telegram.org/bot${TOKEN}/sendDocument
 	fi
 
