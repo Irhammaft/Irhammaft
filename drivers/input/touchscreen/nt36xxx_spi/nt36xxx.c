@@ -1667,82 +1667,6 @@ int lct_nvt_tp_work_callback(bool en)
 	return 0;
 }
 #endif
-/*2020.2.28 longcheer taocheng add for pocket mode start*/
-#if LCT_TP_PALM_EN
-int lct_nvt_tp_palm_callback(bool en)
-{
-	uint8_t buf[8] = {0};
-	int32_t ret = 0;
-
-	if (en) {
-		msleep(30);
-		NVT_LOG("sleep 30ms");
-	} else {
-		if (!open_pocket_fail) {
-			msleep(10);
-			NVT_LOG("sleep 10ms");
-		} else {
-			msleep(20);
-			NVT_LOG("sleep 20ms");
-		}
-	}
-
-	if (!bTouchIsAwake) {
-		NVT_ERR("tp is suspended, can not to set!");
-		if (!en) {
-			open_pocket_fail = 1;
-		} else {
-			msleep(450);
-			NVT_LOG("sleep 450ms");
-			NVT_LOG("bTouchIsAwake=%d", bTouchIsAwake);
-			if (!bTouchIsAwake) {
-				close_pocket_fail = 0;
-			} else {
-				close_pocket_fail = 1;
-			}
-		}
-		return ret;
-	}
-	NVT_LOG("init write_buf[8] = {0}");
-	NVT_LOG("en=%d", en);
-	mutex_lock(&ts->lock);
-	msleep(35);
-
-	//---set xdata index to EVENT BUF ADDR---
-	ret = nvt_set_page(ts->mmap->EVENT_BUF_ADDR | EVENT_MAP_HOST_CMD);
-	if (ret < 0) {
-		NVT_ERR("Set event buffer index fail!");
-		goto exit;
-	}
-	buf[0] = EVENT_MAP_HOST_CMD;
-	buf[1] = 0x74;
-	buf[2] = 0x00;
-	if (en) {
-		NVT_LOG("screen is not locked");
-	} else {
-		NVT_LOG("screen is locked");
-		buf[1] = 0x73;
-	}
-	ret = CTP_SPI_WRITE(ts->client, buf, 3);
-	if (ret < 0) {
-		NVT_ERR("Write palm command fail!");
-		goto exit;
-	}
-	if (!en) {
-		open_pocket_fail = 0;
-	} else {
-		close_pocket_fail = 0;
-	}
-	//set_lct_tp_palm_status(en);
-	NVT_LOG("%s PALM", en ? "Disable" : "Enable");
-
-exit:
-	mutex_unlock(&ts->lock);
-	return ret;
-
-}
-#endif
-/*2020.2.28 longcheer taocheng add for pocket mode end*/
 
 #if LCT_TP_GRIP_AREA_EN
 static int lct_tp_get_screen_angle_callback(void)
@@ -2440,15 +2364,6 @@ static int32_t nvt_ts_probe(struct spi_device *client)
 	}
 #endif
 
-#if LCT_TP_PALM_EN
-	ret = init_lct_tp_palm(lct_nvt_tp_palm_callback);
-	if (ret < 0) {
-		NVT_ERR("init_lct_tp_palm Failed!");
-		goto err_init_lct_tp_palm_failed;
-	} else {
-		NVT_LOG("init_lct_tp_palm Succeeded!");
-	}
-#endif
 	ts->coord_workqueue = alloc_workqueue("nvt_ts_workqueue", WQ_HIGHPRI, 0);
 	if (!ts->coord_workqueue) {
 		NVT_ERR("create nvt_ts_workqueue fail");
