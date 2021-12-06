@@ -1,6 +1,6 @@
 git clone --depth=1 https://gitlab.com/zaherr/clang -b master clang
 git clone --depth=1 https://gitlab.com/zaherr/64 -b master gcc
-git clone --depth=1 https://gitlab.com/zaherr/32 -b master1 gcc32
+git clone --depth=1 https://gitlab.com/zaherr/32 -b master gcc32
 git clone --depth=1 https://gitlab.com/zaherr/anykernel3 -b master surya
 
 export TZ=Asia/Indonesia
