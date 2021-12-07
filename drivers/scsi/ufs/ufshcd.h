@@ -382,7 +382,6 @@ struct ufs_hba_variant_ops {
 	u32	(*get_scale_down_gear)(struct ufs_hba *);
 	int	(*set_bus_vote)(struct ufs_hba *, bool);
 	int	(*phy_initialization)(struct ufs_hba *);
-	u32	(*get_user_cap_mode)(struct ufs_hba *hba);
 #ifdef CONFIG_DEBUG_FS
 	void	(*add_debugfs)(struct ufs_hba *hba, struct dentry *root);
 	void	(*remove_debugfs)(struct ufs_hba *hba);
@@ -431,6 +430,7 @@ struct ufs_hba_crypto_variant_ops {
 				    struct scsi_cmnd *cmd,
 				    struct ufshcd_lrb *lrbp);
 	void *priv;
+	void *crypto_DO_NOT_USE[8];
 };
 
 /* clock gating state  */
@@ -508,6 +508,7 @@ enum ufshcd_hibern8_on_idle_state {
  * @delay_attr: sysfs attribute to control delay_attr
  * @enable_attr: sysfs attribute to enable/disable hibern8 on idle
  * @is_enabled: Indicates the current status of hibern8
+ * @enable_mutex: protect sys node race from multithread access
  */
 struct ufs_hibern8_on_idle {
 	struct delayed_work enter_work;
@@ -519,6 +520,7 @@ struct ufs_hibern8_on_idle {
 	struct device_attribute delay_attr;
 	struct device_attribute enable_attr;
 	bool is_enabled;
+	struct mutex enable_mutex;
 };
 
 /**
@@ -960,6 +962,7 @@ struct ufs_hba {
 	struct work_struct eh_work;
 	struct work_struct eeh_work;
 	struct work_struct rls_work;
+	struct work_struct hibern8_on_idle_enable_work;
 
 	/* HBA Errors */
 	u32 errors;
@@ -980,7 +983,6 @@ struct ufs_hba {
 	/* Keeps information of the UFS device connected to this host */
 	struct ufs_dev_info dev_info;
 	bool auto_bkops_enabled;
-	bool wb_buf_flush_enabled;
 
 #ifdef CONFIG_DEBUG_FS
 	struct debugfs_files debugfs_files;
@@ -1098,18 +1100,9 @@ struct ufs_hba {
 	union ufs_crypto_cap_entry *crypto_cap_array;
 	u32 crypto_cfg_register;
 	struct keyslot_manager *ksm;
+	void *crypto_DO_NOT_USE[8];
 #endif /* CONFIG_SCSI_UFS_CRYPTO */
 
-	struct {
-		struct pm_qos_request req;
-		struct work_struct get_work;
-		struct work_struct put_work;
-		struct mutex lock;
-		atomic_t count;
-		bool active;
-	} pm_qos;
-
-	bool wb_enabled;
 #if defined(CONFIG_UFSFEATURE)
 	struct ufsf_feature ufsf;
 #endif
@@ -1571,13 +1564,6 @@ static inline void ufshcd_vops_remove_debugfs(struct ufs_hba *hba)
 }
 #endif
 
-
-static inline unsigned int ufshcd_vops_get_user_cap_mode(struct ufs_hba *hba)
-{
-	if (hba->var && hba->var->vops->get_user_cap_mode)
-		return hba->var->vops->get_user_cap_mode(hba);
-	return 0;
-}
 static inline void ufshcd_vops_pm_qos_req_start(struct ufs_hba *hba,
 		struct request *req)
 {
@@ -1594,3 +1580,4 @@ static inline void ufshcd_vops_pm_qos_req_end(struct ufs_hba *hba,
 }
 
 #endif /* End of Header */
+
