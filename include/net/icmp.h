@@ -55,8 +55,6 @@ static inline void icmp_ndo_send(struct sk_buff *skb_in, int type, int code, __b
 	struct ip_options opts = { 0 };
 	__icmp_send(skb_in, type, code, info, &opts);
 }
-
-#define icmp_ndo_send icmp_send
 #endif
 
 int icmp_rcv(struct sk_buff *skb);
