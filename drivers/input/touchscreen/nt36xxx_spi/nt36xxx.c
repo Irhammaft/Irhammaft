@@ -1383,10 +1383,6 @@ static void nvt_ts_worker(struct work_struct *work)
 	}
 #endif /* MT_PROTOCOL_B */
 
-#if LCT_TP_PALM_EN
-	//nvt_check_palm(input_id, point_data);
-	//return IRQ_HANDLED;
-#endif
 
 #if TOUCH_KEY_NUM > 0
 	if (point_data[61] == 0xF8) {
@@ -2488,11 +2484,6 @@ err_init_lct_tp_work_failed:
 uninit_lct_tp_work();
 #endif
 
-#if LCT_TP_PALM_EN
-err_init_lct_tp_palm_failed:
-uninit_lct_tp_palm();
-#endif
-
 #if LCT_TP_GRIP_AREA_EN
 err_init_lct_tp_grip_area_failed:
 uninit_lct_tp_grip_area();
@@ -2608,9 +2599,6 @@ static int32_t nvt_ts_remove(struct spi_device *client)
 	uninit_lct_tp_work();
 #endif
 
-#if LCT_TP_PALM_EN
-	uninit_lct_tp_palm();
-#endif
 
 #if LCT_TP_GRIP_AREA_EN
 	uninit_lct_tp_grip_area();
