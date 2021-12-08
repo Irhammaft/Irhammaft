@@ -7,7 +7,7 @@ jobs:
       - run:
           command: |
            pacman -Syu --needed --noconfirm wget base-devel xmlto inetutils bc cpio python-sphinx python-sphinx_rtd_theme graphviz imagemagick git python2 python zip xxd
-           git clone https://efaiza5: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@github.com/efaiza5/venoom_surya.git -b 12-new-backup --depth 1 .
+           git clone https://efaiza5:ghp_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@github.com/efaiza5/venoom_surya.git -b 12-new-backup --depth 1 .
            git config --global user.name "efaiza5"
            git config --global user.email "efaiza5@gmail.com"
            git config --global color.ui false
