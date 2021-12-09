@@ -2845,6 +2845,135 @@ out:
 		put_futex_key(&q->key);
 	return ret;
 }
+#ifdef CONFIG_UXCHAIN
+static int futex_wait(u32 __user *uaddr, unsigned int flags, u32 val,
+		   ktime_t *abs_time, u32 __user *uaddr2, u32 bitset)
+#else
+static int futex_wait(u32 __user *uaddr, unsigned int flags, u32 val,
+		      ktime_t *abs_time, u32 bitset)
+#endif
+{
+	struct hrtimer_sleeper timeout, *to = NULL;
+	struct restart_block *restart;
+	struct futex_hash_bucket *hb;
+	struct futex_q q = futex_q_init;
+#ifdef CONFIG_UXCHAIN
+	struct task_struct *wait_for = NULL;
+#endif
+	int ret;
+
+	if (!bitset)
+		return -EINVAL;
+	q.bitset = bitset;
+
+#ifdef CONFIG_UXCHAIN
+	if (sysctl_uxchain_enabled && q.bitset == FUTEX_BITSET_MATCH_ANY &&
+		current->static_ux && !abs_time)
+		wait_for = get_futex_owner(uaddr2);
+#endif
+
+	if (abs_time) {
+		to = &timeout;
+
+		hrtimer_init_on_stack(&to->timer, (flags & FLAGS_CLOCKRT) ?
+				      CLOCK_REALTIME : CLOCK_MONOTONIC,
+				      HRTIMER_MODE_ABS);
+		hrtimer_init_sleeper(to, current);
+		hrtimer_set_expires_range_ns(&to->timer, *abs_time,
+					     current->timer_slack_ns);
+	}
+
+retry:
+	/*
+	 * Prepare to wait on uaddr. On success, holds hb lock and increments
+	 * q.key refs.
+	 */
+	ret = futex_wait_setup(uaddr, val, flags, &q, &hb);
+#ifdef CONFIG_UXCHAIN
+	if (ret) {
+		if (wait_for) {
+			put_task_struct(wait_for);
+			wait_for = NULL;
+		}
+		goto out;
+	}
+#else
+	if (ret)
+		goto out;
+#endif
+
+	/* queue_me and wait for wakeup, timeout, or a signal. */
+#ifdef CONFIG_UXCHAIN
+	futex_wait_queue_me(hb, &q, to, wait_for);
+#else
+	futex_wait_queue_me(hb, &q, to);
+#endif
+#ifdef CONFIG_UXCHAIN
+	wait_for = NULL;
+#endif
+
+	/* If we were woken (and unqueued), we succeeded, whatever. */
+	ret = 0;
+	/* unqueue_me() drops q.key ref */
+	if (!unqueue_me(&q))
+		goto out;
+	ret = -ETIMEDOUT;
+	if (to && !to->task)
+		goto out;
+
+	/*
+	 * We expect signal_pending(current), but we might be the
+	 * victim of a spurious wakeup as well.
+	 */
+	if (!signal_pending(current))
+		goto retry;
+
+	ret = -ERESTARTSYS;
+	if (!abs_time)
+		goto out;
+
+	restart = &current->restart_block;
+	restart->fn = futex_wait_restart;
+	restart->futex.uaddr = uaddr;
+	restart->futex.val = val;
+	restart->futex.time = *abs_time;
+	restart->futex.bitset = bitset;
+	restart->futex.flags = flags | FLAGS_HAS_TIMEOUT;
+#ifdef CONFIG_UXCHAIN
+	restart->futex.uaddr2 = uaddr2;
+#endif
+
+	ret = -ERESTART_RESTARTBLOCK;
+
+out:
+	if (to) {
+		hrtimer_cancel(&to->timer);
+		destroy_hrtimer_on_stack(&to->timer);
+	}
+	return ret;
+}
+
+
+static long futex_wait_restart(struct restart_block *restart)
+{
+	u32 __user *uaddr = restart->futex.uaddr;
+	ktime_t t, *tp = NULL;
+
+	if (restart->futex.flags & FLAGS_HAS_TIMEOUT) {
+		t = restart->futex.time;
+		tp = &t;
+	}
+	restart->fn = do_no_restart_syscall;
+
+#ifdef CONFIG_UXCHAIN
+	return (long)futex_wait(uaddr, restart->futex.flags,
+				restart->futex.val, tp, restart->futex.uaddr2, restart->futex.bitset);
+#else
+	return (long)futex_wait(uaddr, restart->futex.flags,
+				restart->futex.val, tp, restart->futex.bitset);
+#endif
+}
+
 
 static int futex_wait(u32 __user *uaddr, unsigned int flags, u32 val,
 		      ktime_t *abs_time, u32 bitset)
