@@ -3,6 +3,7 @@ jobs:
   compile:
    docker:
       - image: archlinux:base-devel
+   resource_class: large
    steps:
       - run:
           command: |
