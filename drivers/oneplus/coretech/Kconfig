@@ -65,6 +65,7 @@ config RATP
        help
          In low-end platform, we will restrict admission for task placement to avoid
          CPU resource contention.
+		 
 config MEMEX_STANDALONE
 	default y
 	bool "MemEX feature"
@@ -80,6 +81,7 @@ config ADJ_CHAIN
 	bool "Chain task adj for victim select"
 	help
 	 To chain task adj for any purpose
+
 
 config CPUFREQ_BOUNCING
 	default y
