@@ -8416,10 +8416,10 @@ out:
 	if (target_cpu < 0)
 		target_cpu = prev_cpu;
 
-//	trace_sched_task_util(p, next_cpu, backup_cpu, target_cpu, sync,
-//			need_idle, fbt_env.fastpath, placement_boost,
-// 			rtg_target ? cpumask_first(rtg_target) : -1, start_t,
-//			boosted);
+	trace_sched_task_util(p, next_cpu, backup_cpu, target_cpu, sync,
+			need_idle, fbt_env.fastpath, placement_boost,
+			rtg_target ? cpumask_first(rtg_target) : -1, start_t,
+			boosted);
 	return target_cpu;
 }
 

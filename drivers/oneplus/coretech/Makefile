@@ -1,3 +1,10 @@
+obj-$(CONFIG_OPCHAIN) += uxcore/
+CORE_PATH = $(KBUILD_SRC)/drivers/oneplus/coretech/uxcore/core
+ifeq ($(CORE_PATH),$(wildcard $(CORE_PATH)))
+obj-$(CONFIG_OPCHAIN) += uxcore/core/
+endif
+
+
 obj-$(CONFIG_MEMEX_STANDALONE) += memplus/core/
 
 #obj-$(CONFIG_MEMPLUS) += memplus/
@@ -27,6 +34,5 @@ obj-$(CONFIG_PCCORE) += pccore/
 obj-$(CONFIG_VM_FRAGMENT_MONITOR) += vm_fragment_monitor/
 obj-$(CONFIG_UXCHAIN) += uxchain/
 obj-$(CONFIG_RATP) += ratp/
-obj-$(CONFIG_OPCHAIN) += uxcore/ uxcore/core/
 obj-y += coretech_helper.o
 

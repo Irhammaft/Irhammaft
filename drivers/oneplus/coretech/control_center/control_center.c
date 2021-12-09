@@ -17,6 +17,11 @@
 #include <linux/oem/houston.h>
 #include <linux/oem/im.h>
 
+#ifdef CONFIG_OPCHAIN
+#include <oneplus/uxcore/opchain_helper.h>
+#include <linux/oem/opchain_define.h>
+#endif
+
 /* time measurement */
 #define CC_TIME_START(start) { \
 	if (cc_time_measure) \
@@ -799,7 +804,7 @@ static void cc_adjust_sched(struct cc_command *cc)
 
 #ifdef CONFIG_OPCHAIN
 	if (cc_is_reset(cc)) {
-//		opc_set_boost(0);
+		opc_set_boost(0);
 		return;
 	}
 
@@ -807,8 +812,8 @@ static void cc_adjust_sched(struct cc_command *cc)
 	task = find_task_by_vpid(pid);
 	if (task) {
 		cc_logv("set task %s %d to prime core\n", task->comm, task->pid);
-//		task->etask_claim = UT_PERF_TOP;
-//		opc_set_boost(1);
+		task->etask_claim = UT_PERF_TOP;
+		opc_set_boost(1);
 	} else
 		cc_logw("can't find task %d\n", pid);
 	rcu_read_unlock();
