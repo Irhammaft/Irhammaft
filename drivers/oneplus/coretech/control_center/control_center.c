@@ -812,7 +812,7 @@ static void cc_adjust_sched(struct cc_command *cc)
 	task = find_task_by_vpid(pid);
 	if (task) {
 		cc_logv("set task %s %d to prime core\n", task->comm, task->pid);
-//		task->etask_claim = UT_PERF_TOP;
+		task->etask_claim = UT_PERF_TOP;
 		opc_set_boost(1);
 	} else
 		cc_logw("can't find task %d\n", pid);
