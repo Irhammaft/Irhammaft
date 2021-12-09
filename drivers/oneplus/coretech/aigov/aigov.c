@@ -18,20 +18,20 @@ static int aigov_log_lv = 1;
 module_param_named(log_lv, aigov_log_lv, int, 0664);
 
 /* init flag */
-static bool aigov_inited __read_mostly = 0;
+static bool aigov_inited __read_mostly = 1;
 
 /* feature enable flag */
-static bool aigov_enable = false;
+static bool aigov_enable = true;
 module_param_named(enable, aigov_enable, bool, 0664);
 
 /* hook enable flag, to hook other module for info update */
-static bool aigov_hook = false;
+static bool aigov_hook = true;
 module_param_named(hook, aigov_hook, bool, 0664);
 
-static bool _aigov_use_util = false;
+static bool _aigov_use_util = true;
 module_param_named(use_util, _aigov_use_util, bool, 0664);
 
-static bool aigov_can_update = false;
+static bool aigov_can_update = true;
 module_param_named(aigov_can_update, aigov_can_update, bool, 0664);
 
 /* global resource */
