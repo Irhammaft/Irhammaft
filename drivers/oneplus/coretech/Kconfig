@@ -65,8 +65,20 @@ config RATP
        help
          In low-end platform, we will restrict admission for task placement to avoid
          CPU resource contention.
+		 
 config MEMEX_STANDALONE
 	default n
 	bool "MemEX feature"
 	help
 	 MemEX feature
+	 
+config CRPL_HELPER
+	default y
+	bool "Oneplus CoreTech helper, used for crpl module"
+	 
+config ADJ_CHAIN
+	default y
+	bool "Chain task adj for victim select"
+	help
+	 To chain task adj for any purpose
+

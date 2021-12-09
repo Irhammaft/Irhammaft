@@ -1461,6 +1461,15 @@ struct task_struct {
 	int hot_count;
 #endif
 
+#ifdef CONFIG_UXCHAIN
+	int static_ux;
+	int dynamic_ux;
+	int ux_depth;
+	u64 oncpu_time;
+	int	prio_saved;
+	int	saved_flag;
+#endif
+
 #ifdef CONFIG_HOUSTON
 #ifndef HT_PERF_COUNT_MAX
 #define HT_PERF_COUNT_MAX 5
