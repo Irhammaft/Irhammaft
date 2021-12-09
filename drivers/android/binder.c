@@ -2870,19 +2870,6 @@ static bool binder_proc_transaction(struct binder_transaction *t,
 		binder_transaction_priority(thread->task, t, node_prio,
 					    node->inherit_rt);
 		binder_enqueue_thread_work_ilocked(thread, &t->work);
-#ifdef CONFIG_UXCHAIN
-		if (!oneway && sysctl_uxchain_enabled && t->from && t->from->task
-			&& t->from->task->static_ux) {
-			thread->task->dynamic_ux = 1;
-			thread->task->ux_depth = t->from->task->ux_depth + 1;
-		}
-		if (!oneway && sysctl_uxchain_enabled &&
-			t->from && t->from->task &&
-			t->from->task->dynamic_ux /*&& t->from->task->ux_depth < 2*/) {
-			thread->task->dynamic_ux = 1;
-			thread->task->ux_depth = t->from->task->ux_depth + 1;
-		}
-#endif
 	} else if (!pending_async) {
 		binder_enqueue_work_ilocked(&t->work, &proc->todo);
 	} else {
@@ -4449,18 +4436,6 @@ retry:
 			trd->sender_pid =
 				task_tgid_nr_ns(sender,
 						task_active_pid_ns(current));
-#ifdef CONFIG_UXCHAIN
-			if (sysctl_uxchain_enabled && t_from && t_from->task &&
-				t_from->task->static_ux) {
-				thread->task->dynamic_ux = 1;
-				thread->task->ux_depth = t_from->task->ux_depth + 1;
-			}
-			if (sysctl_uxchain_enabled && t_from && t_from->task &&
-				t_from->task->dynamic_ux /*&& t->from->task->ux_depth < 2*/) {
-				thread->task->dynamic_ux = 1;
-				thread->task->ux_depth = t_from->task->ux_depth + 1;
-			}
-#endif
 		} else {
 			trd->sender_pid = 0;
 		}
