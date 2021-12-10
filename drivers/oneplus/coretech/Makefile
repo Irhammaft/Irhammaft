@@ -33,6 +33,9 @@ obj-$(CONFIG_AIGOV) += aigov/
 obj-$(CONFIG_PCCORE) += pccore/
 obj-$(CONFIG_VM_FRAGMENT_MONITOR) += vm_fragment_monitor/
 obj-$(CONFIG_UXCHAIN) += uxchain/
+obj-$(CONFIG_CPUFREQ_BOUNCING) += cpufreq_bouncing/
 obj-$(CONFIG_RATP) += ratp/
+obj-$(CONFIG_ADJ_CHAIN) += adj_chain/
+obj-$(CONFIG_TPD) += tpd/
 obj-y += coretech_helper.o
 

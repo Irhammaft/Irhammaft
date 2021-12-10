@@ -82,3 +82,12 @@ config ADJ_CHAIN
 	help
 	 To chain task adj for any purpose
 
+config CPUFREQ_BOUNCING
+	default n
+	bool "A power optimization feature to control excessive heating of devices"
+
+config TPD
+	default n
+	bool "a task placement decision for cpu limitation"
+	help
+	 Task affinity by decison
