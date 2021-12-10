@@ -5,7 +5,7 @@ obj-$(CONFIG_OPCHAIN) += uxcore/core/
 endif
 
 
-obj-$(CONFIG_MEMEX_STANDALONE) += memplus/core/
+#obj-$(CONFIG_MEMEX_STANDALONE) += memplus/core/
 
 #obj-$(CONFIG_MEMPLUS) += memplus/
 #CORE_PATH = $(KBUILD_SRC)/drivers/oneplus/coretech/memplus/core
@@ -35,6 +35,7 @@ obj-$(CONFIG_VM_FRAGMENT_MONITOR) += vm_fragment_monitor/
 obj-$(CONFIG_UXCHAIN) += uxchain/
 obj-$(CONFIG_CPUFREQ_BOUNCING) += cpufreq_bouncing/
 obj-$(CONFIG_RATP) += ratp/
+obj-$(CONFIG_ZWB_HANDLE) += zwb_handle/
 obj-$(CONFIG_ADJ_CHAIN) += adj_chain/
+obj-$(CONFIG_MEMEX_STANDALONE) += memex_standalone_support/core/
 obj-y += coretech_helper.o
-

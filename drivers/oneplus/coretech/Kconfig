@@ -67,7 +67,7 @@ config RATP
          CPU resource contention.
 		 
 config MEMEX_STANDALONE
-	default n
+	default y
 	bool "MemEX feature"
 	help
 	 MemEX feature
@@ -91,3 +91,10 @@ config TPD
 	bool "a task placement decision for cpu limitation"
 	help
 	 Task affinity by decison
+
+config ZWB_HANDLE
+	default y
+	depends on ZRAM_WRITEBACK
+	bool "zram writeback feature"
+	help
+	 zram writeback feature
