@@ -111,6 +111,10 @@ struct scan_control {
 
 	/* One of the zones is ready for compaction */
 	unsigned int compaction_ready:1;
+	#ifdef CONFIG_MEMEX_STANDALONE
+	/* 1: swap to zram, 0: swap to file */
+	unsigned int swp_bdv_type:1;
+	#endif
 
 	/* Incremented by the number of inactive pages that were scanned */
 	unsigned long nr_scanned;
@@ -1420,6 +1424,38 @@ unsigned long reclaim_clean_pages_from_list(struct zone *zone,
 	return ret;
 }
 
+#ifdef CONFIG_MEMEX_STANDALONE
+unsigned long swapout_to_zram(struct list_head *page_list,
+	struct vm_area_struct *vma)
+{
+	struct scan_control sc = {
+		.gfp_mask = GFP_KERNEL,
+		.priority = DEF_PRIORITY,
+		.may_writepage = 1,
+		.may_unmap = 1,
+		.may_swap = 1,
+		.target_vma = vma,
+		.swp_bdv_type = 1,
+	};
+
+	return coretech_reclaim_pagelist(page_list, vma, &sc);
+}
+unsigned long swapout_to_disk(struct list_head *page_list,
+	struct vm_area_struct *vma)
+{
+	struct scan_control sc = {
+		.gfp_mask = GFP_KERNEL,
+		.priority = DEF_PRIORITY,
+		.may_writepage = 1,
+		.may_unmap = 1,
+		.may_swap = 1,
+		.target_vma = vma,
+		.swp_bdv_type = 0,
+	};
+
+	return coretech_reclaim_pagelist(page_list, vma, &sc);
+}
+#endif
 
 /* bin.zhong@ASTI, 2019/10/11, add for CONFIG_SMART_BOOST */
 unsigned long coretech_reclaim_pagelist(struct list_head *page_list,
