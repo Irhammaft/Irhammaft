@@ -8,7 +8,7 @@ config MEMPLUS
 	 Memory+ feature
 config SMART_BOOST
 	bool "support smart boost feature"
-	default n
+	default y
 	help
 	 this feature allow memory used by recent-app stay in kernel.
 config DEFRAG
@@ -22,12 +22,12 @@ config FSC
 	help
 	 To cache absence file and avoid stat call storm
 config HOUSTON
-	default n
+	default y
 	bool "to collect system-wide and pmu data"
 	help
 	 Realtime temperature monitor
 config CONTROL_CENTER
-	default n
+	default y
 	bool "control center"
 	help
 	 A framework to adjust system resource such as perfd, but easy to extend
@@ -36,7 +36,7 @@ config CONTROL_CENTER
 	 it also provide a decision model for helping governor to make decision.
 
 config AIGOV
-	default n
+	default y
 	bool "A governor which using ai predicted info as input"
 
 config IM
@@ -48,15 +48,15 @@ config IM
 	  do that. So this IM thing can let we check task only through one comparsion.
 
 config PCCORE
-	default n
+	default y
 	bool "pccore feature"
 
 config VM_FRAGMENT_MONITOR
-	default n
+	default y
 	bool "monitor virtual memory fragment"
 
 config UXCHAIN
-	default n
+	default y
 	bool "A sched policy for ux relative threads "
 
 config RATP
@@ -83,7 +83,7 @@ config ADJ_CHAIN
 	 To chain task adj for any purpose
 
 config CPUFREQ_BOUNCING
-	default n
+	default y
 	bool "A power optimization feature to control excessive heating of devices"
 
 config TPD
