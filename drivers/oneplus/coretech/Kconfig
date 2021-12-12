@@ -2,7 +2,7 @@ config OPCHAIN
 	default n
 	bool "Oneplus CoreTech helper, used for opchain module"
 config MEMPLUS
-	default n
+	default y
 	bool "memory+ feature"
 	help
 	 Memory+ feature

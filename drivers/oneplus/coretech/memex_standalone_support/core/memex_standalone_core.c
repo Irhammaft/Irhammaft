@@ -88,13 +88,13 @@ static unsigned int memex_threshold __read_mostly;
 static pid_t memex_proc[MEMEX_SIZE];
 static unsigned int vm_cam_aware __read_mostly = 1;
 #if MEMEX_DEBUG
-static unsigned int vm_swapin __read_mostly = 0;
+static unsigned int vm_swapin __read_mostly = 1;
 module_param_named(memory_plus_swapin, vm_swapin, uint, S_IRUGO | S_IWUSR);
 #endif
 
 /* -1 = system free to use swap, 0 = disable retention, swap not available, 1 = enable retention */
-static int vm_memory_plus __read_mostly = 0;
-static unsigned long memplus_add_to_swap = 0;
+static int vm_memory_plus __read_mostly = 1;
+static unsigned long memplus_add_to_swap = 1;
 unsigned long coretech_reclaim_pagelist(struct list_head *page_list, struct vm_area_struct *vma, void *sc);
 unsigned long swapout_to_zram(struct list_head *page_list, struct vm_area_struct *vma);
 
