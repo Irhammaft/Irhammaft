@@ -4,7 +4,7 @@
 # Copyright (C) 2020-2021 Adithya R.
 
 SECONDS=0 # builtin bash timer
-ZIPNAME="venoom-surya-$(date '+%Y%m%d-%H%M').zip"
+ZIPNAME="venoom-suryaZ-$(date '+%Y%m%d-%H%M').zip"
 TC_DIR="/root/kernel/clang"
 GCC_64_DIR="/root/kernel/64"
 GCC_32_DIR="/root/kernel/32"
