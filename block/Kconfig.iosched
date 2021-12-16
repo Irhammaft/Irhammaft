@@ -86,7 +86,8 @@ config DEFAULT_IOSCHED
 	default "cfq" if DEFAULT_CFQ
 	default "noop" if DEFAULT_NOOP
 	default "maple" if DEFAULT_MAPLE
-	default "fiops" if DEFAULT_FIOP
+	default "fiops" if DEFAULT_FIOPS
+	default "maple" if DEFAULT_MAPLE
 
 config MQ_IOSCHED_DEADLINE
 	tristate "MQ deadline I/O scheduler"
