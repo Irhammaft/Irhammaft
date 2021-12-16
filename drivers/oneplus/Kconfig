@@ -1,3 +1,2 @@
-source "drivers/oneplus/opslalib/Kconfig"
 source "drivers/oneplus/hung_task_enhance/Kconfig"
 source "drivers/oneplus/coretech/Kconfig"

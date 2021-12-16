@@ -1,9 +1,0 @@
-config SLA
-	default y
-	bool "to monitor netlink traffic"
-	help
-	  Realtime netlink traffic monitor.
-
-config SLA_ALGO
-	default y
-	bool "OnePlus SLA algorithm"
