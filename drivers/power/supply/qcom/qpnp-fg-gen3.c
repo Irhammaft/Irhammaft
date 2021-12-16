@@ -1498,9 +1498,7 @@ static int fg_charge_full_update(struct fg_dev *fg)
 		msoc, bsoc, fg->health, fg->charge_status,
 		fg->charge_full);
 	if (fg->charge_done && !fg->charge_full) {
-		if (msoc >= 99 && (fg->health == POWER_SUPPLY_HEALTH_GOOD
-				|| fg->health == POWER_SUPPLY_HEALTH_COOL
-				|| fg->health == POWER_SUPPLY_HEALTH_WARM)) {
+		if (msoc >= 99 && fg->health == POWER_SUPPLY_HEALTH_GOOD) {
 			fg_dbg(fg, FG_STATUS, "Setting charge_full to true\n");
 			fg->charge_full = true;
 			/*
