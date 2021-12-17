@@ -1,4 +1,4 @@
-2wlen /*
+/*
  * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
