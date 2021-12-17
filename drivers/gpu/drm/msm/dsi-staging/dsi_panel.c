@@ -1483,7 +1483,7 @@ static int dsi_panel_parse_dfps_caps(struct dsi_panel *panel)
 	dfps_caps->dfps_list[0] = 120;
 	dfps_caps->dfps_list[1] = 90;
 	dfps_caps->dfps_list[2] = 75;
-        dfps_cpas->dfps_list[3] = 60;
+        dfps_caps->dfps_list[3] = 60;
 
 	dfps_caps->dfps_support = true;
 
