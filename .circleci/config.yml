@@ -1,0 +1,21 @@
+version: 2.1
+jobs:
+  compile:
+   docker:
+      - image: archlinux:base-devel
+   resource_class: large
+   steps:
+      - run:
+          command: |
+           pacman -Syu --needed --noconfirm wget base-devel xmlto inetutils bc cpio python-sphinx python-sphinx_rtd_theme graphviz imagemagick git python2 python zip xxd
+           git clone https://efaiza5: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@github.com/efaiza5/venoom_surya.git -b rebase --depth 1 .
+           git config --global user.name "efaiza5"
+           git config --global user.email "efaiza5@gmail.com"
+           git config --global color.ui false
+           curl -fsSL "https://repo.archlinuxcn.org/x86_64/glibc-linux4-2.33-4-x86_64.pkg.tar.zst" | bsdtar -C / -xvf -
+           bash builder.sh
+workflows:
+  version: 2.1
+  cooking:
+    jobs:
+      - compile
