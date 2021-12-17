@@ -50,6 +50,7 @@
 		qcom,ulps-enabled;
 		qcom,mdss-dsi-qsync-min-refresh-rate = <30>;
 		qcom,mdss-dsi-pan-enable-dynamic-fps;
+		qcom,mdss-dsi-pan-enable-smart-fps;
 		qcom,mdss-dsi-pan-fps-update =
 			"dfps_immediate_porch_mode_vfp";
 		qcom,dsi-supported-dfps-list = <130 90 75 60 50 30>;
