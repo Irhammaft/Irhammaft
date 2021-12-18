@@ -29,10 +29,6 @@
 #include "kgsl_trace.h"
 #include "kgsl_gmu_core.h"
 
-#ifdef CONFIG_HOUSTON
-#include <oneplus/houston/houston_helper.h>
-#endif
-
 #define KGSL_PWRFLAGS_POWER_ON 0
 #define KGSL_PWRFLAGS_CLK_ON   1
 #define KGSL_PWRFLAGS_AXI_ON   2
@@ -2376,10 +2372,6 @@ error_cleanup_pwr_limit:
 		pwr->sysfs_pwr_limit = NULL;
 	}
 	kfree(pwr->bus_ib);
-
-#ifdef CONFIG_HOUSTON
-	ht_register_kgsl_pwrctrl(pwr);
-#endif
 error_cleanup_pcl:
 	_close_pcl(pwr);
 error_cleanup_ahbpath_pcl:
