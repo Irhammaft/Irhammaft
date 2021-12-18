@@ -68,127 +68,6 @@ static char *aw8624_ram_name = "aw8624_haptic.bin";
 
 static char aw8624_rtp_name[][AW8624_RTP_NAME_MAX] = {
 	{"osc_rtp_24K_5s.bin"},
-	{"AcousticGuitar_RTP.bin"},	//21
-	{"Blues_RTP.bin"},
-	{"Candy_RTP.bin"},
-	{"Carousel_RTP.bin"},
-	{"Celesta_RTP.bin"},
-	{"Childhood_RTP.bin"},
-	{"Country_RTP.bin"},
-	{"Cowboy_RTP.bin"},
-	{"Echo_RTP.bin"},
-	{"Fairyland_RTP.bin"},
-	{"Fantasy_RTP.bin"},
-	{"Field_Trip_RTP.bin"},
-	{"Glee_RTP.bin"},
-	{"Glockenspiel_RTP.bin"},
-	{"Ice_Latte_RTP.bin"},
-	{"Kung_Fu_RTP.bin"},
-	{"Leisure_RTP.bin"},
-	{"Lollipop_RTP.bin"},
-	{"MiMix2_RTP.bin"},
-	{"Mi_RTP.bin"},
-	{"MiHouse_RTP.bin"},
-	{"MiJazz_RTP.bin"},
-	{"MiRemix_RTP.bin"},
-	{"Mountain_Spring_RTP.bin"},
-	{"Orange_RTP.bin"},
-	{"WindChime_RTP.bin"},
-	{"Space_Age_RTP.bin"},
-	{"ToyRobot_RTP.bin"},
-	{"Vigor_RTP.bin"},
-	{"Bottle_RTP.bin"},
-	{"Bubble_RTP.bin"},
-	{"Bullfrog_RTP.bin"},
-	{"Burst_RTP.bin"},
-	{"Chirp_RTP.bin"},
-	{"Clank_RTP.bin"},
-	{"Crystal_RTP.bin"},
-	{"FadeIn_RTP.bin"},
-	{"FadeOut_RTP.bin"},
-	{"Flute_RTP.bin"},
-	{"Fresh_RTP.bin"},
-	{"Frog_RTP.bin"},
-	{"Guitar_RTP.bin"},
-	{"Harp_RTP.bin"},
-	{"IncomingMessage_RTP.bin"},
-	{"MessageSent_RTP.bin"},
-	{"Moment_RTP.bin"},
-	{"NotificationXylophone_RTP.bin"},
-	{"Potion_RTP.bin"},
-	{"Radar_RTP.bin"},
-	{"Spring_RTP.bin"},
-	{"Swoosh_RTP.bin"},	//71
-	{"Gesture_UpSlide_RTP.bin"},
-	{"Gesture_UpHold_RTP.bin"},
-	{"Charge_Wire_RTP.bin"},
-	{"Charge_Wireless_RTP.bin"},
-	{"Unlock_Failed_RTP.bin"},
-	{"FOD_Motion1_RTP.bin"},
-	{"FOD_Motion2_RTP.bin"},
-	{"FOD_Motion3_RTP.bin"},
-	{"FOD_Motion4_RTP.bin"},
-	{"FaceID_Wrong1_RTP.bin"},
-	{"FaceID_Wrong2_RTP.bin"},	//82
-	{"uninstall_animation_rtp.bin"},
-	{"uninstall_dialog_rtp.bin"},
-	{"screenshot_rtp.bin"},
-	{"lockscreen_camera_entry_rtp.bin"},
-	{"launcher_edit_rtp.bin"},
-	{"launcher_icon_selection_rtp.bin"},
-	{"taskcard_remove_rtp.bin"},
-	{"task_cleanall_rtp.bin"},
-	{"new_iconfolder_rtp.bin"},
-	{"notification_remove_rtp.bin"},
-	{"notification_cleanall_rtp.bin"},
-	{"notification_setting_rtp.bin"},
-	{"game_turbo_rtp.bin"},
-	{"NFC_card_rtp.bin"},
-	{"wakeup_voice_assistant_rtp.bin"},
-	{"NFC_card_slow_rtp.bin"},
-	{"aw8624_rtp_1.bin"},	//99
-	{"aw8624_rtp_1.bin"},	//100
-	{"offline_countdown_RTP.bin"},
-	{"scene_bomb_injury_RTP.bin"},
-	{"scene_bomb_RTP.bin"},	//103
-	{"door_open_RTP.bin"},
-	{"aw8624_rtp_1.bin"},
-	{"scene_step_RTP.bin"},	//106
-	{"crawl_RTP.bin"},
-	{"scope_on_RTP.bin"},
-	{"scope_off_RTP.bin"},
-	{"magazine_quick_RTP.bin"},
-	{"grenade_RTP.bin"},
-	{"scene_getshot_RTP.bin"},	//112
-	{"grenade_explosion_RTP.bin"},
-	{"punch_RTP.bin"},
-	{"pan_RTP.bin"},
-	{"bandage_RTP.bin"},
-	{"aw8624_rtp_1.bin"},
-	{"scene_jump_RTP.bin"},
-	{"vehicle_plane_RTP.bin"},	//119
-	{"scene_openparachute_RTP.bin"},	//120
-	{"scene_closeparachute_RTP.bin"},	//121
-	{"vehicle_collision_RTP.bin"},
-	{"vehicle_buggy_RTP.bin"},	//123
-	{"vehicle_dacia_RTP.bin"},	//124
-	{"vehicle_moto_RTP.bin"},	//125
-	{"firearms_akm_RTP.bin"},	//126
-	{"firearms_m16a4_RTP.bin"},	//127
-	{"aw8624_rtp_1.bin"},
-	{"firearms_awm_RTP.bin"},	//129
-	{"firearms_mini14_RTP.bin"},	//130
-	{"firearms_vss_RTP.bin"},	//131
-	{"firearms_qbz_RTP.bin"},	//132
-	{"firearms_ump9_RTP.bin"},	//133
-	{"firearms_dp28_RTP.bin"},	//134
-	{"firearms_s1897_RTP.bin"},	//135
-	{"aw8624_rtp_1.bin"},
-	{"firearms_p18c_RTP.bin"},	//137
-	{"aw8624_rtp_1.bin"},
-	{"aw8624_rtp_1.bin"},
-	{"aw8624_rtp_1.bin"},
-	{"aw8624_rtp_1.bin"},	//141
 	{"aw8624_rtp_1.bin"},
 };
 
@@ -698,9 +577,20 @@ static int aw8624_haptic_set_repeat_wav_seq(struct aw8624 *aw8624,
 	return 0;
 }
 
+static unsigned char aw8624_haptic_set_level(struct aw8624 *aw8624, int gain)
+{
+    int val = 80;
+
+    val = aw8624->ulevel * gain / 128;
+    if (val > 255)
+        val = 255;
+
+    return val;
+}
+
 static int aw8624_haptic_set_gain(struct aw8624 *aw8624, unsigned char gain)
 {
-	aw8624_i2c_write(aw8624, AW8624_REG_DATDBG, gain);
+	aw8624_i2c_write(aw8624, AW8624_REG_DATDBG, aw8624_haptic_set_level(aw8624, gain));
 	return 0;
 }
 
@@ -2068,6 +1958,7 @@ static int aw8624_haptic_init(struct aw8624 *aw8624)
 	}
 
 	aw8624->activate_mode = aw8624->info.mode;
+	aw8624->ulevel = 128;
 	aw8624->osc_cali_run = 0;
 	ret = aw8624_i2c_read(aw8624, AW8624_REG_WAVSEQ1, &reg_val);
 	aw8624->index = reg_val & 0x7F;
@@ -3278,6 +3169,37 @@ static ssize_t aw8624_gain_store(struct device *dev,
 	return count;
 }
 
+static ssize_t aw8624_ulevel_show(struct device *dev,
+				struct device_attribute *attr, char *buf)
+{
+	struct aw8624 *aw8624 = dev_get_drvdata(dev);
+	return snprintf(buf, PAGE_SIZE, "0x%02x\n", aw8624->gain);
+}
+
+static ssize_t aw8624_ulevel_store(struct device *dev,
+				struct device_attribute *attr, const char *buf,
+				size_t count)
+{
+	struct aw8624 *aw8624 = dev_get_drvdata(dev);
+	unsigned int val = 0;
+	int rc = 0;
+
+	rc = kstrtouint(buf, 0, &val);
+	if (rc < 0)
+		return rc;
+
+	if (val < 0 || val > 128)
+		val = 128;
+
+	pr_info("%s: value=%d\n", __FUNCTION__, val);
+
+	mutex_lock(&aw8624->lock);
+	aw8624->ulevel = val;
+	aw8624_haptic_set_gain(aw8624, aw8624->gain);
+	mutex_unlock(&aw8624->lock);
+	return count;
+}
+
 static ssize_t aw8624_seq_show(struct device *dev,
 			       struct device_attribute *attr, char *buf)
 {
@@ -3922,6 +3844,8 @@ static DEVICE_ATTR(index, 0644, aw8624_index_show,
 		   aw8624_index_store);
 static DEVICE_ATTR(gain, 0644, aw8624_gain_show,
 		   aw8624_gain_store);
+static DEVICE_ATTR(ulevel, 0644, aw8624_ulevel_show,
+                   aw8624_ulevel_store);
 static DEVICE_ATTR(seq, 0644, aw8624_seq_show, aw8624_seq_store);
 static DEVICE_ATTR(loop, 0644, aw8624_loop_show,
 		   aw8624_loop_store);
@@ -3964,6 +3888,7 @@ static struct attribute *aw8624_vibrator_attributes[] = {
 	&dev_attr_activate_mode.attr,
 	&dev_attr_index.attr,
 	&dev_attr_gain.attr,
+	&dev_attr_ulevel.attr,
 	&dev_attr_seq.attr,
 	&dev_attr_loop.attr,
 	&dev_attr_rtp.attr,
@@ -4131,7 +4056,11 @@ aw8624_i2c_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
 		     HRTIMER_MODE_REL);
 	aw8624->hap_disable_timer.function = qti_hap_disable_timer;
 
+#ifdef CONFIG_INPUT_QTI_HAPTICS
 	input_dev->name = "aw8624_haptic";
+#else
+	input_dev->name = "qti-haptics";
+#endif
 	input_set_drvdata(input_dev, aw8624);
 	aw8624->input_dev = input_dev;
 	input_set_capability(input_dev, EV_FF, FF_CONSTANT);
