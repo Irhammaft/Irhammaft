@@ -22,10 +22,6 @@ config IOSCHED_DEADLINE
 	  a new point in the service tree and doing a batch of IO from there
 	  in case of expiry.
 
-config IOSCHED_MAPLE
-	tristate "Maple I/O scheduler"
-	default y
-
 config IOSCHED_CFQ
 	tristate "CFQ I/O scheduler"
 	default y
@@ -43,14 +39,6 @@ config CFQ_GROUP_IOSCHED
 	default n
 	---help---
 	  Enable group IO scheduling in CFQ.
-
-config IOSCHED_FIOPS
-	tristate "IOPS based I/O scheduler"
-	default y
-	---help---
-	  This is an IOPS based I/O scheduler. It will try to distribute
-	  IOPS equally among all processes in the system. It's mainly for
-	  Flash based storage.
 
 choice
 
@@ -83,7 +71,6 @@ config DEFAULT_IOSCHED
 	default "cfq" if DEFAULT_CFQ
 	default "noop" if DEFAULT_NOOP
 	default "maple" if DEFAULT_MAPLE
-	default "fiops" if DEFAULT_FIOP
 
 config MQ_IOSCHED_DEADLINE
 	tristate "MQ deadline I/O scheduler"
