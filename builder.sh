@@ -26,7 +26,7 @@ BUILD_DTBO=1
 SIGN_BUILD=0
 INCREMENTAL=1
 
-if [ $INCREMENTAL = 0 ]
+if [ $INCREMENTAL = 1 ]
 then
 	cd AnyKernel3/ && rm -rf * && git reset --hard && cd ..
 fi
@@ -43,7 +43,7 @@ fi
 
 curl -s -X POST https://api.telegram.org/bot${TOKEN}/sendMessage -d text="Buckle up bois ${BRANCH} build has started" -d chat_id=${chat_id} -d parse_mode=HTML
 
-echo "CONFIG_PATCH_INITRAMFS=y" >> arch/arm64/configs/surya_defconfig
+#echo "CONFIG_PATCH_INITRAMFS=y" >> arch/arm64/configs/surya_defconfig
 
 make O=out ARCH=arm64 $DEF
 	make -j$(nproc --all) O=out \
