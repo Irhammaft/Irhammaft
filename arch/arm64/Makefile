@@ -57,6 +57,8 @@ lseinstr := $(call as-instr,.arch_extension lse,-DCONFIG_AS_LSE=1)
 ifeq ($(CONFIG_ARM64_LSE_ATOMICS), y)
   ifeq ($(lseinstr),)
 $(warning LSE atomics not supported by binutils)
+else
+BUILD_CFLAGS	+= -march=armv8-a+lse
   endif
 endif
 
