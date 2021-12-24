@@ -27,6 +27,7 @@
 #include <linux/posix-timers.h>
 #include <linux/workqueue.h>
 #include <linux/freezer.h>
+#include <linux/delay.h>
 #include <linux/compat.h>
 #include <linux/module.h>
 
@@ -71,8 +72,9 @@ static void alarmtimer_triggered_func(void *p)
 
 	if (!(rtc->irq_data & RTC_AF))
 		return;
-}
 	__pm_wakeup_event(ws, 2 * MSEC_PER_SEC);
+}
+
 static struct rtc_task alarmtimer_rtc_task = {
 	.func = alarmtimer_triggered_func
 };
@@ -113,7 +115,6 @@ static int alarmtimer_rtc_add_device(struct device *dev,
 
 	__ws = wakeup_source_register(dev, "alarmtimer");
 
-
 	spin_lock_irqsave(&rtcdev_lock, flags);
 	if (!rtcdev) {
 		if (!try_module_get(rtc->owner)) {
@@ -136,7 +137,6 @@ unlock:
 	spin_unlock_irqrestore(&rtcdev_lock, flags);
 
 	wakeup_source_unregister(__ws);
-
 	return ret;
 }
 
@@ -313,7 +313,7 @@ static int alarmtimer_suspend(struct device *dev)
 		return 0;
 
 	if (ktime_to_ns(min) < 2 * NSEC_PER_SEC) {
-	__pm_wakeup_event(ws, 2 * MSEC_PER_SEC);
+		__pm_wakeup_event(ws, 2 * MSEC_PER_SEC);
 		return -EBUSY;
 	}
 
@@ -465,6 +465,7 @@ int alarm_cancel(struct alarm *alarm)
 		if (ret >= 0)
 			return ret;
 		cpu_relax();
+		ndelay(TIMER_LOCK_TIGHT_LOOP_DELAY_NS);
 	}
 }
 EXPORT_SYMBOL_GPL(alarm_cancel);
@@ -915,14 +916,14 @@ static int __init alarmtimer_init(void)
 	error = platform_driver_register(&alarmtimer_driver);
 	if (error)
 		goto out_if;
-	
+
 	pdev = platform_device_register_simple("alarmtimer", -1, NULL, 0);
 	if (IS_ERR(pdev)) {
 		error = PTR_ERR(pdev);
 		goto out_drv;
 	}
 	return 0;
-	
+
 out_drv:
 	platform_driver_unregister(&alarmtimer_driver);
 out_if:
