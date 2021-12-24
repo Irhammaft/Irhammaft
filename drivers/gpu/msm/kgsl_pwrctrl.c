@@ -937,7 +937,6 @@ static ssize_t kgsl_pwrctrl_gpuclk_show(struct device *dev,
 	if (device == NULL)
 		return 0;
 	pwr = &device->pwrctrl;
-	return snprintf(buf, PAGE_SIZE, "%ld\n", kgsl_pwrctrl_active_freq(pwr));
 //	if (device->state == KGSL_STATE_SLUMBER)
 //		freq = pwr->pwrlevels[pwr->num_pwrlevels - 1].gpu_freq;
 //	else
