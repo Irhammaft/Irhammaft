@@ -28,7 +28,7 @@ INCREMENTAL=1
 
 if [ $INCREMENTAL = 0 ]
 then
-	cd AnyKernel3/ && rm -rf * && git reset --hard && cd ..
+	cd AnyKernel3/ && rm *.zip && rm -rf * && git reset --hard && cd ..
 fi
 
 
