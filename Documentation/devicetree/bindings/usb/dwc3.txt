@@ -53,7 +53,6 @@ Optional properties:
 
  - snps,parkmode-disable-ss-quirk: when set, all SuperSpeed bus instances in
 			park mode are disabled.
-
  - snps,dis_metastability_quirk: when set, disable metastability workaround.
 			CAUTION: use only if you are absolutely sure of it.
  - snps,is-utmi-l1-suspend: true when DWC3 asserts output signal
