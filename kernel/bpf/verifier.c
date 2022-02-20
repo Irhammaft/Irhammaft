@@ -2036,9 +2036,6 @@ static int retrieve_ptr_limit(const struct bpf_reg_state *ptr_reg,
 			      u32 *alu_limit, bool mask_to_left)
 {
 	u32 max = 0, ptr_limit = 0;
-	bool mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
-			    (opcode == BPF_SUB && !off_is_neg);
-	u32 off, max;
 
 	switch (ptr_reg->type) {
 	case PTR_TO_STACK:
@@ -2056,24 +2053,6 @@ static int retrieve_ptr_limit(const struct bpf_reg_state *ptr_reg,
 			     ptr_reg->smin_value :
 			     ptr_reg->umax_value) + ptr_reg->off;
 		break;
-		 * left direction, see BPF_REG_FP.
-		 */
-		max = MAX_BPF_STACK + mask_to_left;
-		off = ptr_reg->off + ptr_reg->var_off.value;
-		if (mask_to_left)
-			*ptr_limit = MAX_BPF_STACK + off;
-		else
-			*ptr_limit = -off - 1;
-		return *ptr_limit >= max ? -ERANGE : 0;
-	case PTR_TO_MAP_VALUE:
-		max = ptr_reg->map_ptr->value_size;
-		if (mask_to_left) {
-			*ptr_limit = ptr_reg->umax_value + ptr_reg->off;
-		} else {
-			off = ptr_reg->smin_value + ptr_reg->off;
-			*ptr_limit = ptr_reg->map_ptr->value_size - off - 1;
-		}
-		return *ptr_limit >= max ? -ERANGE : 0;
 	default:
 		return REASON_TYPE;
 	}
@@ -2182,10 +2161,6 @@ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
 		alu_state |= ptr_is_dst_reg ?
 			     BPF_ALU_SANITIZE_SRC : BPF_ALU_SANITIZE_DST;
 	}
-
-	err = retrieve_ptr_limit(ptr_reg, &alu_limit, opcode, off_is_neg);
-	if (err < 0)
-		return err;
 
 	err = update_alu_sanitation_state(aux, alu_state, alu_limit);
 	if (err < 0)
@@ -2369,14 +2344,6 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
 
 	switch (opcode) {
 	case BPF_ADD:
-<<<<<<< HEAD
-=======
-		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
-		if (ret < 0) {
-			verbose("R%d tried to add from different maps, paths, or prohibited types\n", dst);
-			return ret;
-		}
->>>>>>> c49e70a5e7f2... bpf: Prohibit alu ops for pointer types not defining ptr_limit
 		/* We can take a fixed offset as long as it doesn't overflow
 		 * the s32 'off' field
 		 */
@@ -2427,14 +2394,6 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
 		}
 		break;
 	case BPF_SUB:
-<<<<<<< HEAD
-=======
-		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
-		if (ret < 0) {
-			verbose("R%d tried to sub from different maps, paths, or prohibited types\n", dst);
-			return ret;
-		}
->>>>>>> c49e70a5e7f2... bpf: Prohibit alu ops for pointer types not defining ptr_limit
 		if (dst_reg == off_reg) {
 			/* scalar -= pointer.  Creates an unknown scalar */
 			verbose("R%d tried to subtract pointer from scalar\n",
@@ -4919,17 +4878,6 @@ static int fixup_bpf_calls(struct bpf_verifier_env *env)
 			off_reg = issrc ? insn->src_reg : insn->dst_reg;
 			if (isimm) {
 				*patch++ = BPF_MOV32_IMM(BPF_REG_AX, aux->alu_limit);
-			if (isneg)
-				*patch++ = BPF_ALU64_IMM(BPF_MUL, off_reg, -1);
-			*patch++ = BPF_MOV32_IMM(BPF_REG_AX, aux->alu_limit);
-			*patch++ = BPF_ALU64_REG(BPF_SUB, BPF_REG_AX, off_reg);
-			*patch++ = BPF_ALU64_REG(BPF_OR, BPF_REG_AX, off_reg);
-			*patch++ = BPF_ALU64_IMM(BPF_NEG, BPF_REG_AX, 0);
-			*patch++ = BPF_ALU64_IMM(BPF_ARSH, BPF_REG_AX, 63);
-			if (issrc) {
-				*patch++ = BPF_ALU64_REG(BPF_AND, BPF_REG_AX,
-							 off_reg);
-				insn->src_reg = BPF_REG_AX;
 			} else {
 				if (isneg)
 					*patch++ = BPF_ALU64_IMM(BPF_MUL, off_reg, -1);
