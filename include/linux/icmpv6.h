@@ -26,15 +26,6 @@ static inline void __icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 in
 				 const struct inet6_skb_parm *parm)
 {
 	icmp6_send(skb, type, code, info, NULL, parm);
-			     const struct in6_addr *force_saddr);
-void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
-		const struct in6_addr *force_saddr,
-		const struct inet6_skb_parm *parm);
-#if IS_BUILTIN(CONFIG_IPV6)
-static inline void __icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
-				 const struct inet6_skb_parm *parm)
-{
-	icmp6_send(skb, type, code, info, NULL, parm);
 }
 static inline int inet6_register_icmp_sender(ip6_icmp_send_t *fn)
 {
@@ -49,7 +40,6 @@ static inline int inet6_unregister_icmp_sender(ip6_icmp_send_t *fn)
 #else
 extern void __icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
 			  const struct inet6_skb_parm *parm);
-extern void icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info);
 extern int inet6_register_icmp_sender(ip6_icmp_send_t *fn);
 extern int inet6_unregister_icmp_sender(ip6_icmp_send_t *fn);
 #endif
@@ -70,7 +60,6 @@ static inline void icmpv6_ndo_send(struct sk_buff *skb_in, u8 type, u8 code, __u
 	struct inet6_skb_parm parm = { 0 };
 	__icmpv6_send(skb_in, type, code, info, &parm);
 }
-#define icmpv6_ndo_send icmpv6_send
 #endif
 
 #else
@@ -78,13 +67,6 @@ static inline void icmpv6_ndo_send(struct sk_buff *skb_in, u8 type, u8 code, __u
 static inline void icmpv6_send(struct sk_buff *skb,
 			       u8 type, u8 code, __u32 info)
 {
-}
-
-static inline void icmpv6_ndo_send(struct sk_buff *skb,
-				   u8 type, u8 code, __u32 info)
-{
-
-
 }
 
 static inline void icmpv6_ndo_send(struct sk_buff *skb,
