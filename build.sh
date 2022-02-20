@@ -4,7 +4,7 @@
 # Copyright (C) 2020-2021 Adithya R.
 
 SECONDS=0 # builtin bash timer
-TC_DIR="/home/kin/kernel/Cosmic-Clang"
+TC_DIR="/home/kin/kernel/clang-gengkapak"
 GCC_64_DIR="/home/kin/kernel/64"
 GCC_32_DIR="/home/kin/kernel/32"
 DEFCONFIG="surya_defconfig"
