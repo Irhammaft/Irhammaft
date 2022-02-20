@@ -423,7 +423,6 @@ static int icmp6_iif(const struct sk_buff *skb)
 void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
 		const struct in6_addr *force_saddr,
 		const struct inet6_skb_parm *parm)
-		const struct in6_addr *force_saddr)
 {
 	struct net *net = dev_net(skb->dev);
 	struct inet6_dev *idev = NULL;
