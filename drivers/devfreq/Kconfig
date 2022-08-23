@@ -154,6 +154,12 @@ config DEVFREQ_GOV_MEMLAT
 	  monitor if it determines that a workload is memory latency bound. Since
 	  this uses target specific counters it can conflict with existing profiling
 	  tools.
+	  
+config SIMPLE_GPU_ALGORITHM
+	bool "Simple GPU algorithm"
+	depends on DEVFREQ_GOV_MSM_ADRENO_TZ
+	help
+	  Simple user configurable GPU controlling algorithm
 
 comment "DEVFREQ Drivers"
 
