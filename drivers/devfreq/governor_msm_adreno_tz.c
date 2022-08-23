@@ -422,6 +422,15 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
 			priv->bin.busy_time > CEILING) {
 		val = -1 * level;
 	} else {
+		#ifdef CONFIG_SIMPLE_GPU_ALGORITHM
+		if (simple_gpu_active != 0)
+			val = simple_gpu_algorithm(level, priv);
+		else
+			val = __secure_tz_entry3(TZ_UPDATE_ID,
+					level,
+					priv->bin.total_time,
+					priv->bin.busy_time);
+#else
 		unsigned int refresh_rate = dsi_panel_get_refresh_rate();
 
 		scm_data[0] = level;
@@ -436,7 +445,7 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
 	}
 	priv->bin.total_time = 0;
 	priv->bin.busy_time = 0;
-
+#endif
 	/*
 	 * If the decision is to move to a different level, make sure the GPU
 	 * frequency changes.
